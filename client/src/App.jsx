@@ -13,11 +13,23 @@ import ProtectedLayout from './components/ProtectedLayout';
 import { ROUTES } from './constants/Routes';
 import { PERMISSIONS } from './constants/Permissions';
 
+// Employee Attendance Pages
+import EmployeeSplash from './pages/EmployeeAttendance/EmployeeSplash';
+import EmployeeLogin from './pages/EmployeeAttendance/EmployeeLogin';
+import EmployeeRegister from './pages/EmployeeAttendance/EmployeeRegister';
+import EmployeeDashboard from './pages/EmployeeAttendance/EmployeeDashboard';
+
 function App() {
   return (
     <Routes>
       {/* Public Routes */}
       <Route path={ROUTES.LOGIN} element={<Login />} />
+
+      {/* Employee Attendance Standalone Routes */}
+      <Route path={ROUTES.EMPLOYEE_SPLASH} element={<EmployeeSplash />} />
+      <Route path={ROUTES.EMPLOYEE_LOGIN} element={<EmployeeLogin />} />
+      <Route path={ROUTES.EMPLOYEE_REGISTER} element={<EmployeeRegister />} />
+      <Route path={ROUTES.EMPLOYEE_DASHBOARD} element={<EmployeeDashboard />} />
 
       {/* Core Navigation Routes */}
       <Route

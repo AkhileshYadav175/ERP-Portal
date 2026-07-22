@@ -6,5 +6,9 @@ export const ROUTES = {
   ATTENDANCE: '/attendance',
   FEES_MANAGEMENT: '/fees-management',
   LEAD_MANAGEMENT: '/lead-management',
-  UNAUTHORIZED: '/unauthorized'
+  UNAUTHORIZED: '/unauthorized',
+  EMPLOYEE_SPLASH: '/employee',
+  EMPLOYEE_LOGIN: '/employee/login',
+  EMPLOYEE_REGISTER: '/employee/register',
+  EMPLOYEE_DASHBOARD: '/employee/dashboard'
 };

@@ -118,7 +118,9 @@ export default function LeadDetails({ lead, onClose, onUpdateStatus, onDeleteLea
   // 7. Actions handlers
   const handleAddActivityAndCheckStatus = async (activityData) => {
     const res = await addActivity(activityData);
-    if (lead.status === 'New' || lead.status === 'pending') {
+    if (activityData.followUpDate) {
+      await onUpdateStatus(lead._id || lead.id, 'Follow-up');
+    } else if (lead.status === 'New' || lead.status === 'pending') {
       await onUpdateStatus(lead._id || lead.id, 'Connected');
     }
     if (onActivityAdded) {

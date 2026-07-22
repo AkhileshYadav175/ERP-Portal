@@ -152,6 +152,10 @@ export default function LeadDashboard() {
     if (selectedLead && (selectedLead._id === leadId || selectedLead.id === leadId)) {
       setSelectedLead((prev) => ({ ...prev, status: nextStatus }));
     }
+    if (nextStatus === 'Follow-up') {
+      setActiveStatusFilter('Follow-up');
+      setSelectedLead(null);
+    }
   };
 
   const handleDelete = async (leadId) => {
@@ -167,7 +171,9 @@ export default function LeadDashboard() {
         leadId: rowActionLead._id || rowActionLead.id,
         ...data
       });
-      if (rowActionLead.status === 'New' || rowActionLead.status === 'pending') {
+      if (data.followUpDate) {
+        await handleUpdateStatus(rowActionLead._id || rowActionLead.id, 'Follow-up');
+      } else if (rowActionLead.status === 'New' || rowActionLead.status === 'pending') {
         await handleUpdateStatus(rowActionLead._id || rowActionLead.id, 'Connected');
       }
       setRowActionLead(null);
