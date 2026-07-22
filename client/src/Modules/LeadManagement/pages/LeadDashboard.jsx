@@ -12,6 +12,7 @@ import LeadDetails from '../components/LeadDetails';
 import ActivityModal from '../components/ActivityModal';
 import MessageModal from '../components/MessageModal';
 import LeadConnectionSummary from '../components/LeadConnectionSummary';
+import AdmissionTab from '../components/AdmissionTab';
 import { RefreshCw, PlusCircle, Bell, MoreVertical, ArrowLeft } from 'lucide-react';
 
 export default function LeadDashboard() {
@@ -330,12 +331,11 @@ export default function LeadDashboard() {
           <div className="bg-white border border-[#E8E6E1] rounded-3xl p-6 shadow-sm">
             <LeadConnectionSummary activities={staffSummary} />
           </div>
+        ) : activeTab === 'offline' ? (
+          <AdmissionTab />
         ) : activeTab !== 'online' ? (
           <div className="bg-white border border-[#EBEAE6] rounded-2xl p-16 text-center shadow-sm">
-            <h4 className="font-extrabold text-slate-750 text-sm">Under Development</h4>
-            <p className="text-xs text-slate-400 mt-2 max-w-sm mx-auto leading-relaxed">
-              This tab is currently being simulated. Please switch back to "Online Leads" to view active website inquiries.
-            </p>
+            <p className="text-xs font-bold text-slate-400">Coming soon</p>
           </div>
         ) : (
           <div className="space-y-6">
