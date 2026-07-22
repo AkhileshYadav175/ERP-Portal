@@ -36,6 +36,12 @@ app.use('/api/auth', require('./routes/authRoutes'));
 // Lead Routes
 app.use('/api/lead', require('./routes/leadRoutes'));
 
+// Employee Routes
+app.use('/api/employee', require('./routes/employeeRoutes'));
+
+// Admin Attendance/Employee Routes
+app.use('/api/admin', require('./routes/adminRoutes'));
+
 // 404 Route handler
 app.use((req, res, next) => {
   res.status(404).json({ success: false, message: 'Resource not found' });

@@ -1,4 +1,6 @@
 const mongoose = require('mongoose');
+const bcrypt = require('bcryptjs');
+const attendanceDB = require('../config/attendanceDb');
 
 const EmployeeSchema = new mongoose.Schema(
   {
@@ -7,28 +9,46 @@ const EmployeeSchema = new mongoose.Schema(
       required: [true, 'Please add employee name'],
       trim: true
     },
+    lastName: {
+      type: String,
+      required: [true, 'Please add employee last name'],
+      trim: true
+    },
     email: {
       type: String,
       required: [true, 'Please add email'],
       unique: true
+    },
+    password: {
+      type: String,
+      required: [true, 'Please add a password'],
+      minlength: 6,
+      select: false
     },
     phone: {
       type: String,
       default: ''
     },
     department: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'Department',
-      required: false
+      type: String,
+      default: ''
     },
     designation: {
+      type: String,
+      default: 'Employee'
+    },
+    profilePicture: {
       type: String,
       default: ''
     },
     status: {
       type: String,
-      enum: ['active', 'suspended', 'terminated'],
-      default: 'active'
+      enum: ['pending', 'active', 'approved', 'suspended', 'terminated', 'removed'],
+      default: 'pending'
+    },
+    role: {
+      type: String,
+      default: 'employee'
     },
     dateOfJoining: {
       type: Date,
@@ -38,4 +58,18 @@ const EmployeeSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-module.exports = mongoose.model('Employee', EmployeeSchema);
+// Encrypt password using bcrypt
+EmployeeSchema.pre('save', async function (next) {
+  if (!this.isModified('password')) {
+    next();
+  }
+  const salt = await bcrypt.genSalt(10);
+  this.password = await bcrypt.hash(this.password, salt);
+});
+
+// Match employee entered password to hashed password in database
+EmployeeSchema.methods.matchPassword = async function (enteredPassword) {
+  return await bcrypt.compare(enteredPassword, this.password);
+};
+
+module.exports = attendanceDB.model('Employee', EmployeeSchema, 'users');

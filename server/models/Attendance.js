@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const attendanceDB = require('../config/attendanceDb');
 
 const AttendanceSchema = new mongoose.Schema(
   {
@@ -32,4 +33,4 @@ const AttendanceSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-module.exports = mongoose.model('Attendance', AttendanceSchema);
+module.exports = attendanceDB.model('Attendance', AttendanceSchema);
