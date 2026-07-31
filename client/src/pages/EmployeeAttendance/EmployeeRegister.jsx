@@ -95,10 +95,10 @@ export default function EmployeeRegister() {
 
   return (
     <div className="min-h-screen w-full bg-slate-50 flex items-center justify-center font-sans">
-      <div className="w-full max-w-md min-h-screen sm:min-h-[85vh] sm:rounded-3xl sm:shadow-2xl bg-white flex flex-col p-8 relative overflow-hidden animate-fade-in justify-between">
+      <div className="w-full max-w-md min-h-screen sm:min-h-[85vh] sm:max-h-[90vh] sm:rounded-3xl sm:shadow-2xl bg-white flex flex-col p-8 relative overflow-hidden animate-fade-in justify-between">
         
-        <div className="space-y-6">
-          {/* Header */}
+        {/* Header */}
+        <div className="space-y-4 shrink-0 mb-4">
           <div className="flex items-center gap-3">
             <img 
               src="/jains.svg" 
@@ -109,22 +109,25 @@ export default function EmployeeRegister() {
             <span className="text-[10px] font-black text-brand-red tracking-widest uppercase">REGISTRATION</span>
           </div>
 
-          <div className="space-y-1">
+          <div>
             <h1 className="text-xl font-extrabold text-slate-800 tracking-tight">Create Employee Account</h1>
             <p className="text-xs text-slate-450 font-semibold leading-relaxed">
               Register below to submit your profile for admin approval.
             </p>
           </div>
+        </div>
 
-          {error && (
-            <div className="bg-rose-50 border border-rose-100 text-brand-red text-xs font-bold p-3 rounded-2xl animate-fade-in">
-              {error}
-            </div>
-          )}
+        {error && (
+          <div className="bg-rose-50 border border-rose-100 text-brand-red text-xs font-bold p-3 rounded-2xl animate-fade-in shrink-0 mb-3">
+            {error}
+          </div>
+        )}
 
-          {/* Form */}
-          <form onSubmit={handleSubmit} className="space-y-4 pt-1 max-h-[55vh] overflow-y-auto pr-1">
-            
+        {/* Form */}
+        <form onSubmit={handleSubmit} className="flex-1 flex flex-col min-h-0 justify-between">
+          
+          {/* Scrollable Fields Box */}
+          <div className="flex-1 overflow-y-auto space-y-4 pr-1 pb-4 min-h-0 mb-4">
             {/* Image Selector Canvas */}
             <div className="flex flex-col items-center gap-2.5 pb-2">
               <div className="relative">
@@ -153,7 +156,7 @@ export default function EmployeeRegister() {
             </div>
 
             <div className="grid grid-cols-2 gap-3">
-              <div className="space-y-1">
+              <div>
                 <label className="text-[9px] font-black text-slate-400 uppercase tracking-wide">First Name</label>
                 <div className="relative">
                   <input
@@ -168,7 +171,7 @@ export default function EmployeeRegister() {
                 </div>
               </div>
 
-              <div className="space-y-1">
+              <div>
                 <label className="text-[9px] font-black text-slate-400 uppercase tracking-wide">Last Name</label>
                 <div className="relative">
                   <input
@@ -185,7 +188,7 @@ export default function EmployeeRegister() {
             </div>
 
             <div className="grid grid-cols-2 gap-3">
-              <div className="space-y-1">
+              <div>
                 <label className="text-[9px] font-black text-slate-400 uppercase tracking-wide">Department</label>
                 <div className="relative">
                   <input
@@ -200,7 +203,7 @@ export default function EmployeeRegister() {
                 </div>
               </div>
 
-              <div className="space-y-1">
+              <div>
                 <label className="text-[9px] font-black text-slate-400 uppercase tracking-wide">Phone Number</label>
                 <div className="relative">
                   <input
@@ -215,7 +218,7 @@ export default function EmployeeRegister() {
               </div>
             </div>
 
-            <div className="space-y-1">
+            <div>
               <label className="text-[9px] font-black text-slate-400 uppercase tracking-wide">Email</label>
               <div className="relative">
                 <input
@@ -230,7 +233,7 @@ export default function EmployeeRegister() {
               </div>
             </div>
 
-            <div className="space-y-1">
+            <div>
               <label className="text-[9px] font-black text-slate-400 uppercase tracking-wide">Password</label>
               <div className="relative">
                 <input
@@ -245,7 +248,7 @@ export default function EmployeeRegister() {
               </div>
             </div>
 
-            <div className="space-y-1">
+            <div>
               <label className="text-[9px] font-black text-slate-400 uppercase tracking-wide">Confirm Password</label>
               <div className="relative">
                 <input
@@ -259,11 +262,14 @@ export default function EmployeeRegister() {
                 <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-3.5 h-3.5" />
               </div>
             </div>
+          </div>
 
+          {/* Register Button */}
+          <div className="shrink-0">
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-brand-red hover:bg-brand-red-hover text-white text-xs font-extrabold py-3 px-4 rounded-xl shadow-md transition-all active:scale-98 cursor-pointer border-0 mt-3 flex items-center justify-center gap-2"
+              className="w-full bg-brand-red hover:bg-brand-red-hover text-white text-xs font-extrabold py-3.5 px-4 rounded-xl shadow-md transition-all active:scale-98 cursor-pointer border-0 flex items-center justify-center gap-2"
             >
               {loading ? (
                 <div className="w-4 h-4 rounded-full border-2 border-white/20 border-t-white animate-spin" />
@@ -271,11 +277,11 @@ export default function EmployeeRegister() {
                 'Register Profile'
               )}
             </button>
-          </form>
-        </div>
+          </div>
+        </form>
 
         {/* Footer Navigation */}
-        <div className="pt-6 text-center text-xs font-bold text-slate-450 border-t border-slate-100 mt-4 pb-1">
+        <div className="pt-4 text-center text-xs font-bold text-slate-450 border-t border-slate-100 shrink-0 mt-4">
           Already have an account?{' '}
           <Link 
             to={ROUTES.EMPLOYEE_LOGIN} 

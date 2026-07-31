@@ -49,6 +49,14 @@ const seedData = async () => {
         route: '/lead-management',
         icon: 'UserCheck',
         description: 'Read and write leads database logs.'
+      },
+      {
+        name: 'Certificate Module Access',
+        code: 'access_certificates',
+        module: 'Certificate Management',
+        route: '/certificate-management',
+        icon: 'Award',
+        description: 'Create and verify student certificates.'
       }
     ];
 
@@ -76,13 +84,14 @@ const seedData = async () => {
 
     // 3. Map Roles to Permissions (RolePermission)
     const rolePermissionMappings = [
-      { roleName: 'Super Admin', permissionCode: 'access_attendance' },
-      { roleName: 'Super Admin', permissionCode: 'access_fees' },
-      { roleName: 'Super Admin', permissionCode: 'access_leads' },
+      {roleName: 'Super Admin', permissionCode: 'access_attendance'},
+      {roleName: 'Super Admin', permissionCode: 'access_fees'},
+      {roleName: 'Super Admin', permissionCode: 'access_leads'},
+      {roleName: 'Super Admin', permissionCode: 'access_certificates'},
 
       // Module Admins get respective permissions
-      { roleName: 'Attendance Admin', permissionCode: 'access_attendance' },
-      { roleName: 'Fees Admin', permissionCode: 'access_fees' }
+      {roleName: 'Attendance Admin', permissionCode: 'access_attendance'},
+      {roleName: 'Fees Admin', permissionCode: 'access_fees'}
     ];
 
     for (let mapping of rolePermissionMappings) {

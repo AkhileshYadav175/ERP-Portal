@@ -10,5 +10,8 @@ export const ROUTES = {
   EMPLOYEE_SPLASH: '/employee',
   EMPLOYEE_LOGIN: '/employee/login',
   EMPLOYEE_REGISTER: '/employee/register',
-  EMPLOYEE_DASHBOARD: '/employee/dashboard'
+  EMPLOYEE_DASHBOARD: '/employee/dashboard',
+  CERTIFICATE_MANAGEMENT: '/certificate-management',
+  VERIFY_CERTIFICATE: '/verify-certificate',
+  NOTIFICATIONS: '/notifications'
 };

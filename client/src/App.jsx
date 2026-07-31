@@ -7,11 +7,14 @@ import Settings from './pages/Settings/Settings';
 import Attendance from './Modules/Attendance/pages/Attendance';
 import FeesManagement from './Modules/FeesManagement/pages/FeesManagement';
 import LeadDashboard from './Modules/LeadManagement/pages/LeadDashboard';
+import CertificateManagement from './Modules/CertificateManagement/pages/CertificateManagement';
+import VerifyCertificate from './pages/CertificateVerification/VerifyCertificate';
 import Unauthorized from './pages/Unauthorized';
 import ProtectedRoute from './routes/ProtectedRoute';
 import ProtectedLayout from './components/ProtectedLayout';
 import { ROUTES } from './constants/Routes';
 import { PERMISSIONS } from './constants/Permissions';
+import Notifications from './pages/Notifications/Notifications';
 
 // Employee Attendance Pages
 import EmployeeSplash from './pages/EmployeeAttendance/EmployeeSplash';
@@ -24,6 +27,7 @@ function App() {
     <Routes>
       {/* Public Routes */}
       <Route path={ROUTES.LOGIN} element={<Login />} />
+      <Route path={ROUTES.VERIFY_CERTIFICATE} element={<VerifyCertificate />} />
 
       {/* Employee Attendance Standalone Routes */}
       <Route path={ROUTES.EMPLOYEE_SPLASH} element={<EmployeeSplash />} />
@@ -65,6 +69,17 @@ function App() {
         }
       />
 
+      <Route
+        path={ROUTES.NOTIFICATIONS}
+        element={
+          <ProtectedRoute>
+            <ProtectedLayout>
+              <Notifications />
+            </ProtectedLayout>
+          </ProtectedRoute>
+        }
+      />
+
       {/* Module Routes — permission-gated */}
       <Route
         path={ROUTES.ATTENDANCE}
@@ -93,6 +108,17 @@ function App() {
         element={
           <ProtectedRoute requiredPermission={PERMISSIONS.ACCESS_LEADS}>
             <LeadDashboard />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path={ROUTES.CERTIFICATE_MANAGEMENT}
+        element={
+          <ProtectedRoute requiredPermission={PERMISSIONS.ACCESS_CERTIFICATES}>
+            <ProtectedLayout>
+              <CertificateManagement />
+            </ProtectedLayout>
           </ProtectedRoute>
         }
       />

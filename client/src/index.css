@@ -1,6 +1,7 @@
 @import "tailwindcss";
 
 @theme {
+  --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
   --color-brand-red: #E31C1C;
   --color-brand-red-hover: #b81414;
   --color-pastel-bg: #ffffff;

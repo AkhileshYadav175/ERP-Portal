@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   Users, 
@@ -19,26 +19,44 @@ import {
 } from 'recharts';
 import { useLeads } from '../../Modules/LeadManagement/hooks/useLeads';
 import { ROUTES } from '../../constants/Routes';
+import { adminAttendanceApi } from '../../api/adminAttendanceApi';
 
 export default function Dashboard() {
   const navigate = useNavigate();
   const { leads, loading } = useLeads();
 
-  // Local state for static staff attendance to fulfill interactive toggling
-  const [attendance, setAttendance] = useState({
-    'Aadish Jain (Admin)': true,
-    'Amit Kumar': true,
-    'Rohit Sharma': true,
-    'Neha Joshi': true,
-    'Sanjay Gupta': false,
-    'Aarav Goyal': false,
-  });
+  // Fetch real attendance summary from the database
+  const [attendanceSummary, setAttendanceSummary] = useState([]);
+  const [summaryLoading, setSummaryLoading] = useState(false);
 
-  const toggleAttendance = (name) => {
-    setAttendance((prev) => ({
-      ...prev,
-      [name]: !prev[name],
-    }));
+  const fetchAttendanceSummary = async () => {
+    try {
+      setSummaryLoading(true);
+      const res = await adminAttendanceApi.getDailySummary();
+      if (res.success) {
+        setAttendanceSummary(res.summary || []);
+      }
+    } catch (err) {
+      console.error('Failed to fetch daily summary:', err);
+    } finally {
+      setSummaryLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchAttendanceSummary();
+  }, []);
+
+  const toggleAttendance = (id) => {
+    setAttendanceSummary(prev =>
+      prev.map(item => {
+        if (item.id === id) {
+          const newStatus = (item.status === 'Present' || item.status === 'Late') ? 'Absent' : 'Present';
+          return { ...item, status: newStatus };
+        }
+        return item;
+      })
+    );
   };
 
   // Compute stats dynamically from real leads
@@ -110,8 +128,11 @@ export default function Dashboard() {
     return 'bg-rose-50 text-rose-600 border border-rose-100';
   };
 
-  const presentCount = Object.values(attendance).filter(Boolean).length;
-  const absentCount = Object.values(attendance).filter(v => !v).length;
+  const presentEmployees = attendanceSummary.filter(emp => emp.status === 'Present' || emp.status === 'Late');
+  const absentEmployees = attendanceSummary.filter(emp => emp.status === 'Absent' || emp.status === 'Leave');
+
+  const presentCount = presentEmployees.length;
+  const absentCount = absentEmployees.length;
 
   return (
     <div className="bg-white h-[85vh] overflow-hidden text-slate-800 font-sans flex flex-col">
@@ -329,14 +350,16 @@ export default function Dashboard() {
                   <span className="text-xs font-black tracking-wide">PRESENT STAFF ({presentCount})</span>
                 </div>
                 <div className="grid grid-cols-2 gap-2.5">
-                  {Object.entries(attendance).filter(([_, isPresent]) => isPresent).map(([name]) => (
+                  {presentEmployees.map((emp) => (
                     <div 
-                      key={name}
-                      onClick={() => toggleAttendance(name)}
+                      key={emp.id}
+                      onClick={() => toggleAttendance(emp.id)}
                       className="bg-emerald-50/50 hover:bg-emerald-50 border border-emerald-100 rounded-lg px-3 py-2 flex items-center gap-2 cursor-pointer transition-colors"
                     >
                       <div className="w-2 h-2 rounded-full bg-emerald-500"></div>
-                      <span className="text-xs font-bold text-slate-700 truncate">{name}</span>
+                      <span className="text-xs font-bold text-slate-700 truncate">
+                        {emp.lastName ? `${emp.name} ${emp.lastName}` : emp.name}
+                      </span>
                     </div>
                   ))}
                 </div>
@@ -349,14 +372,16 @@ export default function Dashboard() {
                   <span className="text-xs font-black tracking-wide">ABSENT STAFF ({absentCount})</span>
                 </div>
                 <div className="grid grid-cols-2 gap-2.5">
-                  {Object.entries(attendance).filter(([_, isPresent]) => !isPresent).map(([name]) => (
+                  {absentEmployees.map((emp) => (
                     <div 
-                      key={name}
-                      onClick={() => toggleAttendance(name)}
+                      key={emp.id}
+                      onClick={() => toggleAttendance(emp.id)}
                       className="bg-rose-50/50 hover:bg-rose-50 border border-rose-100 rounded-lg px-3 py-2 flex items-center gap-2 cursor-pointer transition-colors"
                     >
                       <div className="w-2 h-2 rounded-full bg-rose-500"></div>
-                      <span className="text-xs font-bold text-slate-700 truncate">{name}</span>
+                      <span className="text-xs font-bold text-slate-700 truncate">
+                        {emp.lastName ? `${emp.name} ${emp.lastName}` : emp.name}
+                      </span>
                     </div>
                   ))}
                 </div>

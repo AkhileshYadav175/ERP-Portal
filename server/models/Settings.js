@@ -1,24 +1,51 @@
 const mongoose = require('mongoose');
 
+/**
+ * Settings Schema - Represents a single document holding ERP global configuration parameters.
+ * Automatically generates defaults upon database read initialization.
+ */
 const SettingsSchema = new mongoose.Schema(
   {
-    key: {
-      type: String,
-      required: [true, 'Please add config key'],
-      unique: true,
-      trim: true
+    institute: {
+      name: { type: String, default: 'JCMS ERP Academy' },
+      logo: { type: String, default: '' }, // Logo placeholder string
+      address: { type: String, default: '12, Corporate Block, Educational Hub' },
+      city: { type: String, default: 'New Delhi' },
+      state: { type: String, default: 'Delhi' },
+      country: { type: String, default: 'India' },
+      pincode: { type: String, default: '110001' },
+      mobile: { type: String, default: '9876543210' },
+      email: { type: String, default: 'contact@jcmsacademy.com' },
+      website: { type: String, default: 'www.jcmsacademy.com' }
     },
-    value: {
-      type: mongoose.Schema.Types.Mixed,
-      required: [true, 'Please add config value']
+    fee: {
+      defaultCurrency: { type: String, default: 'INR' },
+      currencySymbol: { type: String, default: '₹' },
+      financialYear: { type: String, default: '2026-2027' },
+      defaultDueDays: { type: Number, default: 14 },
+      defaultPaymentPlan: { type: String, default: 'INSTALLMENT' },
+      receiptPrefix: { type: String, default: 'RCP' },
+      invoicePrefix: { type: String, default: 'INV' },
+      studentPrefix: { type: String, default: 'STU' }
     },
-    group: {
-      type: String,
-      default: 'general'
+    receipt: {
+      receiptHeader: { type: String, default: 'Official Payment Receipt' },
+      receiptFooter: { type: String, default: 'Thank you for your payment!' },
+      signaturePlaceholder: { type: String, default: 'Authorized Signature' },
+      showLogo: { type: Boolean, default: true },
+      showQrPlaceholder: { type: Boolean, default: true }
     },
-    description: {
-      type: String,
-      default: ''
+    invoice: {
+      invoiceHeader: { type: String, default: 'Billing Invoice Voucher' },
+      invoiceFooter: { type: String, default: 'Please pay within the due date.' },
+      termsAndConditions: { type: String, default: 'Fee once paid is non-refundable.' },
+      signaturePlaceholder: { type: String, default: 'Authorized Representative' }
+    },
+    general: {
+      timeZone: { type: String, default: 'Asia/Kolkata' },
+      dateFormat: { type: String, default: 'DD/MM/YYYY' },
+      timeFormat: { type: String, default: '12h' },
+      defaultLanguage: { type: String, default: 'English' }
     }
   },
   { timestamps: true }

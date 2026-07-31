@@ -77,7 +77,8 @@ class AuthService {
         'Super Admin': [
           { code: 'access_attendance', name: 'Attendance Access', route: '/attendance', module: 'Attendance Management', icon: 'ClipboardList' },
           { code: 'access_fees', name: 'Fees Access', route: '/fees-management', module: 'Fees Management', icon: 'DollarSign' },
-          { code: 'access_leads', name: 'Lead Access', route: '/lead-management', module: 'Lead Management', icon: 'UserCheck' }
+          { code: 'access_leads', name: 'Lead Access', route: '/lead-management', module: 'Lead Management', icon: 'UserCheck' },
+          { code: 'access_certificates', name: 'Certificate Access', route: '/certificate-management', module: 'Certificate Management', icon: 'Award' }
         ],
         'Attendance Admin': [
           { code: 'access_attendance', name: 'Attendance Access', route: '/attendance', module: 'Attendance Management', icon: 'ClipboardList' }
@@ -149,7 +150,8 @@ class AuthService {
         'Super Admin': [
           { code: 'access_attendance', name: 'Attendance Access', route: '/attendance', module: 'Attendance Management', icon: 'ClipboardList' },
           { code: 'access_fees', name: 'Fees Access', route: '/fees-management', module: 'Fees Management', icon: 'DollarSign' },
-          { code: 'access_leads', name: 'Lead Access', route: '/lead-management', module: 'Lead Management', icon: 'UserCheck' }
+          { code: 'access_leads', name: 'Lead Access', route: '/lead-management', module: 'Lead Management', icon: 'UserCheck' },
+          { code: 'access_certificates', name: 'Certificate Access', route: '/certificate-management', module: 'Certificate Management', icon: 'Award' }
         ],
         'Attendance Admin': [
           { code: 'access_attendance', name: 'Attendance Access', route: '/attendance', module: 'Attendance Management', icon: 'ClipboardList' }

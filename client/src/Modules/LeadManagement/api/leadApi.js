@@ -1,26 +1,6 @@
-import axios from 'axios';
+import axiosInstance from '../../../api/axios';
 
-const leadAxios = axios.create({
-  baseURL: 'https://api.jainscomputer.com/api',
-  timeout: 15000,
-  headers: {
-    'Content-Type': 'application/json',
-  }
-});
-
-// Attach JWT Token automatically just like the global axios instance
-leadAxios.interceptors.request.use(
-  (config) => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      config.headers['Authorization'] = `Bearer ${token}`;
-    }
-    return config;
-  },
-  (error) => {
-    return Promise.reject(error);
-  }
-);
+const leadAxios = axiosInstance;
 
 export const leadApi = {
   getLeads: async () => {

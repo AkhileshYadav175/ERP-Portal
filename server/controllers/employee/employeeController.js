@@ -1,6 +1,6 @@
-const Employee = require('../models/Employee');
-const Attendance = require('../models/Attendance');
+const Employee = require('../../models/Employee');
 const jwt = require('jsonwebtoken');
+const Notification = require('../../models/Notification');
 
 // Generate JWT
 const generateToken = (id, email) => {
@@ -40,6 +40,14 @@ exports.registerEmployee = async (req, res, next) => {
       status: 'pending' // default status is pending approval
     });
 
+    // Create admin notification
+    await Notification.create({
+      isAdmin: true,
+      senderName: `${employee.name} ${employee.lastName}`,
+      message: `New employee registration request from ${employee.name} ${employee.lastName} (${employee.email})`,
+      type: 'new_registration'
+    });
+
     return res.status(201).json({
       success: true,
       message: 'Registration successful! Your account is pending admin approval.',
@@ -68,7 +76,7 @@ exports.loginEmployee = async (req, res, next) => {
     }
 
     // Find employee and select password field
-    const employee = await Employee.findOne({ email, role: 'employee' }).select('+password');
+    const employee = await Employee.findOne({ email }).select('+password');
     if (!employee) {
       return res.status(401).json({ success: false, message: 'Invalid credentials' });
     }
@@ -126,6 +134,7 @@ exports.getEmployeeProfile = async (req, res, next) => {
         email: req.employee.email,
         phone: req.employee.phone,
         department: req.employee.department || '',
+        designation: req.employee.designation || 'Employee',
         profilePicture: req.employee.profilePicture || ''
       }
     });
@@ -134,126 +143,73 @@ exports.getEmployeeProfile = async (req, res, next) => {
   }
 };
 
-// @desc    Get today's check-in/out status
-// @route   GET /api/employee/attendance/today
+// @desc    Update employee profile details
+// @route   PUT /api/employee/me
 // @access  Private
-exports.getTodayAttendance = async (req, res, next) => {
+exports.updateEmployeeProfile = async (req, res, next) => {
   try {
-    const todayStart = new Date();
-    todayStart.setHours(0, 0, 0, 0);
+    const { name, lastName, email, phone, profilePicture, password } = req.body;
+    const employee = await Employee.findById(req.employee._id);
+    if (!employee) {
+      return res.status(404).json({ success: false, message: 'Employee not found.' });
+    }
 
-    const todayEnd = new Date();
-    todayEnd.setHours(23, 59, 59, 999);
+    if (email && email !== employee.email) {
+      const emailExists = await Employee.findOne({ email });
+      if (emailExists) {
+        return res.status(400).json({ success: false, message: 'An employee with this email already exists.' });
+      }
+      employee.email = email;
+    }
 
-    const attendance = await Attendance.findOne({
-      employee: req.employee._id,
-      date: { $gte: todayStart, $lte: todayEnd }
-    });
+    if (name) employee.name = name;
+    if (lastName) employee.lastName = lastName;
+    if (phone !== undefined) employee.phone = phone;
+    if (profilePicture !== undefined) employee.profilePicture = profilePicture;
+    if (password) {
+      employee.password = password; // triggers pre-save hash hook
+    }
 
-    // Fetch last 10 days of attendance history for dashboard display
-    const history = await Attendance.find({
-      employee: req.employee._id
-    })
-      .sort({ date: -1 })
-      .limit(10);
+    await employee.save();
 
     return res.status(200).json({
       success: true,
-      todayRecord: attendance,
-      history
+      message: 'Profile updated successfully.',
+      employee: {
+        id: employee._id,
+        name: employee.name,
+        lastName: employee.lastName,
+        email: employee.email,
+        phone: employee.phone,
+        department: employee.department || '',
+        designation: employee.designation || 'Employee',
+        profilePicture: employee.profilePicture || ''
+      }
     });
   } catch (err) {
     next(err);
   }
 };
 
-// @desc    Mark Check-In
-// @route   POST /api/employee/attendance/checkin
+// @desc    Get employee notifications
+// @route   GET /api/employee/notifications
 // @access  Private
-exports.checkInEmployee = async (req, res, next) => {
+exports.getEmployeeNotifications = async (req, res, next) => {
   try {
-    const { remarks } = req.body;
-
-    const todayStart = new Date();
-    todayStart.setHours(0, 0, 0, 0);
-    const todayEnd = new Date();
-    todayEnd.setHours(23, 59, 59, 999);
-
-    // Check if check-in already exists
-    const existing = await Attendance.findOne({
-      employee: req.employee._id,
-      date: { $gte: todayStart, $lte: todayEnd }
-    });
-
-    if (existing) {
-      return res.status(400).json({ success: false, message: 'You have already checked in today.' });
-    }
-
-    const checkInTime = new Date();
-    const hours = checkInTime.getHours();
-    const minutes = checkInTime.getMinutes();
-    const timeStr = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
-
-    // Late threshold: after 10:00 AM
-    let status = 'Present';
-    if (hours > 10 || (hours === 10 && minutes > 0)) {
-      status = 'Late';
-    }
-
-    const attendance = await Attendance.create({
-      employee: req.employee._id,
-      date: checkInTime,
-      status,
-      checkIn: timeStr,
-      remarks: remarks || ''
-    });
-
-    return res.status(201).json({
-      success: true,
-      message: status === 'Late' ? 'Checked in late successfully.' : 'Checked in successfully.',
-      record: attendance
-    });
+    const notifications = await Notification.find({ recipient: req.employee._id }).sort({ createdAt: -1 });
+    return res.status(200).json({ success: true, notifications });
   } catch (err) {
     next(err);
   }
 };
 
-// @desc    Mark Check-Out
-// @route   POST /api/employee/attendance/checkout
+// @desc    Mark employee notifications as read
+// @route   PUT /api/employee/notifications/read
 // @access  Private
-exports.checkOutEmployee = async (req, res, next) => {
+exports.markEmployeeNotificationsRead = async (req, res, next) => {
   try {
-    const todayStart = new Date();
-    todayStart.setHours(0, 0, 0, 0);
-    const todayEnd = new Date();
-    todayEnd.setHours(23, 59, 59, 999);
-
-    const attendance = await Attendance.findOne({
-      employee: req.employee._id,
-      date: { $gte: todayStart, $lte: todayEnd }
-    });
-
-    if (!attendance) {
-      return res.status(400).json({ success: false, message: 'You must check-in first before checking out.' });
-    }
-
-    if (attendance.checkOut) {
-      return res.status(400).json({ success: false, message: 'You have already checked out today.' });
-    }
-
-    const checkOutTime = new Date();
-    const hours = checkOutTime.getHours();
-    const minutes = checkOutTime.getMinutes();
-    const timeStr = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
-
-    attendance.checkOut = timeStr;
-    await attendance.save();
-
-    return res.status(200).json({
-      success: true,
-      message: 'Checked out successfully.',
-      record: attendance
-    });
+    await Notification.updateMany({ recipient: req.employee._id, isRead: false }, { isRead: true });
+    return res.status(200).json({ success: true, message: 'All notifications marked as read.' });
   } catch (err) {
     next(err);
   }

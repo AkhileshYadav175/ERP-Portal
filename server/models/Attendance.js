@@ -1,5 +1,4 @@
 const mongoose = require('mongoose');
-const attendanceDB = require('../config/attendanceDb');
 
 const AttendanceSchema = new mongoose.Schema(
   {
@@ -14,7 +13,7 @@ const AttendanceSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: ['Present', 'Absent', 'Leave', 'Late'],
+      enum: ['Present', 'Absent', 'Leave', 'Late', 'Holiday', 'Half Day'],
       default: 'Present'
     },
     checkIn: {
@@ -33,4 +32,4 @@ const AttendanceSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-module.exports = attendanceDB.model('Attendance', AttendanceSchema);
+module.exports = mongoose.model('Attendance', AttendanceSchema);
