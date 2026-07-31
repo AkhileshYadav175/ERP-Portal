@@ -13,6 +13,7 @@ import ActivityModal from '../components/ActivityModal';
 import MessageModal from '../components/MessageModal';
 import LeadConnectionSummary from '../components/LeadConnectionSummary';
 import AdmissionTab from '../components/AdmissionTab';
+import OfflineLeadsTab from '../components/OfflineLeadsTab';
 import { RefreshCw, PlusCircle, Bell, MoreVertical, ArrowLeft } from 'lucide-react';
 
 export default function LeadDashboard() {
@@ -308,6 +309,16 @@ export default function LeadDashboard() {
                 : 'text-slate-450 border-transparent hover:text-slate-700'
             }`}
           >
+            Admission Form
+          </button>
+          <button 
+            onClick={() => setActiveTab('offlineLeads')}
+            className={`pb-2.5 text-xs font-bold transition-all border-b-2 -mb-[2px] cursor-pointer ${
+              activeTab === 'offlineLeads' 
+                ? 'text-[#E31C1C] border-[#E31C1C]' 
+                : 'text-slate-450 border-transparent hover:text-slate-700'
+            }`}
+          >
             Offline Leads
           </button>
           <button 
@@ -339,6 +350,8 @@ export default function LeadDashboard() {
           </div>
         ) : activeTab === 'offline' ? (
           <AdmissionTab />
+        ) : activeTab === 'offlineLeads' ? (
+          <OfflineLeadsTab />
         ) : activeTab !== 'online' ? (
           <div className="bg-white border border-[#EBEAE6] rounded-2xl p-16 text-center shadow-sm">
             <p className="text-xs font-bold text-slate-400">Coming soon</p>
