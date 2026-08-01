@@ -109,7 +109,7 @@ const Login = () => {
             required
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            placeholder="superadmin@erp.com"
+            placeholder="aadishjaindesign@gmail.com"
             icon={Mail}
           />
 
@@ -132,11 +132,6 @@ const Login = () => {
             >
               {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
             </button>
-          </div>
-
-          {/* Remember me or quick credentials tip */}
-          <div className="p-3 bg-rose-50 rounded-lg border border-rose-100 text-xs text-slate-500 text-center">
-            Demo Credentials: <span className="font-semibold text-brand-red font-mono">superadmin@erp.com</span> / <span className="font-semibold text-brand-red font-mono">admin123</span>
           </div>
 
           {/* Sign In Button */}
