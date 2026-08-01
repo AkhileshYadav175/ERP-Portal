@@ -58,15 +58,10 @@ class AuthService {
 
     // Mock Login Fallback (For instant testing and demo purposes)
     const mockAccounts = {
-      'superadmin@erp.com': { name: 'Super Admin User', role: 'Super Admin', status: 'active' },
-      'attendance@erp.com': { name: 'Attendance Administrator', role: 'Attendance Admin', status: 'active' },
-      'website@erp.com': { name: 'Website Administrator', role: 'Website Admin', status: 'active' },
-      'fees@erp.com': { name: 'Fees Administrator', role: 'Fees Admin', status: 'active' },
-      'leads@erp.com': { name: 'Lead Administrator', role: 'Lead Admin', status: 'active' },
-      'inactive@erp.com': { name: 'Inactive User', role: 'Super Admin', status: 'inactive' }
+      'aadishjaindesign@gmail.com': { name: 'Aadish Jain Design', role: 'Super Admin', status: 'active' }
     };
 
-    if (mockAccounts[email] && password === 'admin123') {
+    if (mockAccounts[email] && password === 'aadishjaindesign') {
       const mockProfile = mockAccounts[email];
 
       if (mockProfile.status !== 'active') {

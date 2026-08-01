@@ -1,10 +1,133 @@
 const mongoose = require('mongoose');
 const Department = require('../models/Department');
+const User = require('../models/User');
+const Role = require('../models/Role');
+const Permission = require('../models/Permission');
+const RolePermission = require('../models/RolePermission');
+
+const seedDefaultAuthData = async () => {
+  try {
+    const userCount = await User.countDocuments();
+    if (userCount === 0) {
+      console.log('No users found in database. Seeding default RBAC & Admin user...');
+
+      // 1. Create Permissions
+      const permissionsData = [
+        {
+          name: 'Attendance Module Access',
+          code: 'access_attendance',
+          module: 'Attendance Management',
+          route: '/attendance',
+          icon: 'ClipboardList',
+          description: 'Read and write attendance access logs.'
+        },
+        {
+          name: 'Fees Module Access',
+          code: 'access_fees',
+          module: 'Fees Management',
+          route: '/fees-management',
+          icon: 'DollarSign',
+          description: 'Oversee invoice receipts and due collections.'
+        },
+        {
+          name: 'Lead Module Access',
+          code: 'access_leads',
+          module: 'Lead Management',
+          route: '/lead-management',
+          icon: 'UserCheck',
+          description: 'Read and write leads database logs.'
+        },
+        {
+          name: 'Certificate Module Access',
+          code: 'access_certificates',
+          module: 'Certificate Management',
+          route: '/certificate-management',
+          icon: 'Award',
+          description: 'Create and verify student certificates.'
+        },
+        {
+          name: 'Website Module Access',
+          code: 'access_site',
+          module: 'Website Management',
+          route: '/site-management',
+          icon: 'Globe',
+          description: 'Manage site operations and website settings.'
+        }
+      ];
+
+      const permissions = {};
+      for (let pData of permissionsData) {
+        const p = await Permission.findOneAndUpdate(
+          { code: pData.code },
+          pData,
+          { new: true, upsert: true }
+        );
+        permissions[p.code] = p._id;
+      }
+
+      // 2. Create Roles
+      const rolesList = [
+        { name: 'Super Admin', description: 'Full access across all modules.' },
+        { name: 'Attendance Admin', description: 'Restricted access to Personnel logbooks.' },
+        { name: 'Website Admin', description: 'Restricted access to Site operations.' },
+        { name: 'Fees Admin', description: 'Restricted access to financials and billings.' },
+        { name: 'Lead Admin', description: 'Restricted access to Lead management logs.' }
+      ];
+
+      const roles = {};
+      for (let rData of rolesList) {
+        const r = await Role.findOneAndUpdate(
+          { name: rData.name },
+          rData,
+          { new: true, upsert: true }
+        );
+        roles[r.name] = r._id;
+      }
+
+      // 3. Map Roles to Permissions
+      await RolePermission.deleteMany();
+      const rolePermissionMappings = [
+        { roleName: 'Super Admin', permissionCode: 'access_attendance' },
+        { roleName: 'Super Admin', permissionCode: 'access_fees' },
+        { roleName: 'Super Admin', permissionCode: 'access_leads' },
+        { roleName: 'Super Admin', permissionCode: 'access_certificates' },
+        { roleName: 'Attendance Admin', permissionCode: 'access_attendance' },
+        { roleName: 'Website Admin', permissionCode: 'access_site' },
+        { roleName: 'Fees Admin', permissionCode: 'access_fees' },
+        { roleName: 'Lead Admin', permissionCode: 'access_leads' }
+      ];
+
+      for (let mapping of rolePermissionMappings) {
+        const roleId = roles[mapping.roleName];
+        const permissionId = permissions[mapping.permissionCode];
+        if (roleId && permissionId) {
+          await RolePermission.create({ role: roleId, permission: permissionId });
+        }
+      }
+
+      // 4. Create Super Admin User
+      const adminUser = {
+        name: 'Aadish Jain Design',
+        email: 'aadishjaindesign@gmail.com',
+        password: 'aadishjaindesign',
+        role: roles['Super Admin'],
+        status: 'active'
+      };
+      await User.create(adminUser);
+      console.log('Successfully seeded default Super Admin: aadishjaindesign@gmail.com');
+    }
+  } catch (err) {
+    console.error('Failed to seed default auth/RBAC data:', err.message);
+  }
+};
 
 const connectDB = async () => {
   try {
     const conn = await mongoose.connect(process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/erp-portal');
     console.log(`MongoDB Connected: ${conn.connection.host}`);
+
+    // Seed default auth and RBAC data
+    await seedDefaultAuthData();
 
     // Seed default departments if none exist
     try {
@@ -24,7 +147,6 @@ const connectDB = async () => {
     }
   } catch (error) {
     console.error(`Database Connection Error: ${error.message}`);
-    // Do not crash the entire process during setup/testing in environments where MongoDB might not be running yet.
     console.log('Server is running, but database connection is pending. Make sure MongoDB is started.');
   }
 };

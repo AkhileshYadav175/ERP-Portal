@@ -4,6 +4,22 @@ const User = require('./models/User');
 const Role = require('./models/Role');
 const Permission = require('./models/Permission');
 const RolePermission = require('./models/RolePermission');
+const Department = require('./models/Department');
+const Student = require('./models/Student');
+const FeePlan = require('./models/FeePlan');
+const Installment = require('./models/Installment');
+const Payment = require('./models/Payment');
+const Invoice = require('./models/Invoice');
+const Receipt = require('./models/Receipt');
+const FeesActivityLog = require('./models/FeesActivityLog');
+const Lead = require('./models/Lead');
+const Attendance = require('./models/Attendance');
+const Employee = require('./models/Employee');
+const Leave = require('./models/Leave');
+const Holiday = require('./models/Holiday');
+const Certificate = require('./models/Certificate');
+const Notification = require('./models/Notification');
+const Settings = require('./models/Settings');
 
 // Load environment variables
 dotenv.config();
@@ -21,7 +37,23 @@ const seedData = async () => {
     await RolePermission.deleteMany();
     await Role.deleteMany();
     await Permission.deleteMany();
-    console.log('Cleared existing collections.');
+    await Department.deleteMany();
+    await Student.deleteMany();
+    await FeePlan.deleteMany();
+    await Installment.deleteMany();
+    await Payment.deleteMany();
+    await Invoice.deleteMany();
+    await Receipt.deleteMany();
+    await FeesActivityLog.deleteMany();
+    await Lead.deleteMany();
+    await Attendance.deleteMany();
+    await Employee.deleteMany();
+    await Leave.deleteMany();
+    await Holiday.deleteMany();
+    await Certificate.deleteMany();
+    await Notification.deleteMany();
+    await Settings.deleteMany();
+    console.log('Cleared all existing database collections.');
 
     // 1. Create Permissions
     const permissionsData = [
@@ -57,6 +89,14 @@ const seedData = async () => {
         route: '/certificate-management',
         icon: 'Award',
         description: 'Create and verify student certificates.'
+      },
+      {
+        name: 'Website Module Access',
+        code: 'access_site',
+        module: 'Website Management',
+        route: '/site-management',
+        icon: 'Globe',
+        description: 'Manage site operations and website settings.'
       }
     ];
 
@@ -108,46 +148,11 @@ const seedData = async () => {
     // 4. Create Users (with role objectIds)
     const usersData = [
       {
-        name: 'Super Admin User',
-        email: 'superadmin@erp.com',
-        password: 'admin123',
+        name: 'Aadish Jain Design',
+        email: 'aadishjaindesign@gmail.com',
+        password: 'aadishjaindesign',
         role: roles['Super Admin'],
         status: 'active'
-      },
-      {
-        name: 'Attendance Admin User',
-        email: 'attendance@erp.com',
-        password: 'admin123',
-        role: roles['Attendance Admin'],
-        status: 'active'
-      },
-      {
-        name: 'Website Admin User',
-        email: 'website@erp.com',
-        password: 'admin123',
-        role: roles['Website Admin'],
-        status: 'active'
-      },
-      {
-        name: 'Fees Admin User',
-        email: 'fees@erp.com',
-        password: 'admin123',
-        role: roles['Fees Admin'],
-        status: 'active'
-      },
-      {
-        name: 'Lead Admin User',
-        email: 'leads@erp.com',
-        password: 'admin123',
-        role: roles['Lead Admin'],
-        status: 'active'
-      },
-      {
-        name: 'Inactive Admin User',
-        email: 'inactive@erp.com',
-        password: 'admin123',
-        role: roles['Super Admin'],
-        status: 'inactive'
       }
     ];
 
