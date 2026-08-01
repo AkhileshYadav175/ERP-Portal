@@ -2,13 +2,13 @@ const mongoose = require('mongoose');
 
 /**
  * Notification Schema - Represents ERP global notifications for all modules.
+ * Fully compatible with both module-based and simple notification schemas.
  */
 const NotificationSchema = new mongoose.Schema(
   {
     title: {
       type: String,
-      required: [true, 'Notification title is required'],
-      trim: true
+      default: ''
     },
     message: {
       type: String,
@@ -17,12 +17,10 @@ const NotificationSchema = new mongoose.Schema(
     },
     module: {
       type: String,
-      enum: ['Attendance', 'Lead Management', 'Certificate Management', 'Fees Management', 'System'],
-      required: [true, 'Module classification is required']
+      default: 'System'
     },
     type: {
       type: String,
-      enum: ['SUCCESS', 'INFO', 'WARNING', 'ERROR'],
       default: 'INFO'
     },
     priority: {
@@ -46,7 +44,19 @@ const NotificationSchema = new mongoose.Schema(
     targetUser: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',
-      required: [true, 'Target user is required']
+      default: null
+    },
+    recipient: {
+      type: mongoose.Schema.Types.ObjectId,
+      default: null
+    },
+    senderName: {
+      type: String,
+      default: ''
+    },
+    isAdmin: {
+      type: Boolean,
+      default: false
     },
     isRead: {
       type: Boolean,
@@ -68,7 +78,9 @@ const NotificationSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-// Database indexes for fast querying on user feed sorting and read filtering
+// Database indexes for fast querying
 NotificationSchema.index({ targetUser: 1, isRead: 1, createdAt: -1 });
+NotificationSchema.index({ recipient: 1, isRead: 1, createdAt: -1 });
+NotificationSchema.index({ isAdmin: 1, isRead: 1, createdAt: -1 });
 
 module.exports = mongoose.model('Notification', NotificationSchema);
