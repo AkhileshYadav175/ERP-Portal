@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { 
   Building2, Receipt, FileText, Settings as SettingsIcon, Globe, 
-  Save, RefreshCw, UploadCheck, CheckCircle2, AlertCircle 
+  Save, RefreshCw, CheckCircle2, AlertCircle 
 } from 'lucide-react';
 import Loader from '../components/Loader';
 import ErrorState from '../components/ErrorState';
