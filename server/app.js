@@ -52,59 +52,39 @@ app.get('/api', (req, res) => {
 });
 
 // Health Check Route
+app.get('/health', (req, res) => {
+  res.status(200).json({ success: true, message: 'ERP Portal server is healthy and running.' });
+});
 app.get('/api/health', (req, res) => {
   res.status(200).json({ success: true, message: 'ERP Portal server is healthy and running.' });
 });
 
-// Auth Routes
-app.use('/api/auth', require('./routes/authRoutes'));
+// Register Routes both with and without '/api' prefix to be resilient to client config issues
+const routes = [
+  { path: '/auth', router: require('./routes/authRoutes') },
+  { path: '/lead', router: require('./routes/leadRoutes') },
+  { path: '/students', router: require('./routes/studentRoutes') },
+  { path: '/fee-plan', router: require('./routes/feePlanRoutes') },
+  { path: '/installments', router: require('./routes/installmentRoutes') },
+  { path: '/payments', router: require('./routes/paymentRoutes') },
+  { path: '/fees-dashboard', router: require('./routes/dashboardRoutes') },
+  { path: '/reports', router: require('./routes/reportRoutes') },
+  { path: '/invoices', router: require('./routes/invoiceRoutes') },
+  { path: '/receipts', router: require('./routes/receiptRoutes') },
+  { path: '/settings', router: require('./routes/settingsRoutes') },
+  { path: '/notifications', router: require('./routes/notificationRoutes') },
+  { path: '/employee', router: require('./routes/employee/employeeRoutes') },
+  { path: '/employee/leaves', router: require('./routes/employee/leaveRoutes') },
+  { path: '/admin', router: require('./routes/admin/adminRoutes') },
+  { path: '/admin/leaves', router: require('./routes/admin/leaveRoutes') },
+  { path: '/attendance', router: require('./routes/attendance/attendanceRoutes') },
+  { path: '/certificates', router: require('./routes/certificate/certificateRoutes') }
+];
 
-// Lead Routes
-app.use('/api/lead', require('./routes/leadRoutes'));
-
-// Student Routes
-app.use('/api/students', require('./routes/studentRoutes'));
-
-// Fee Plan Routes
-app.use('/api/fee-plan', require('./routes/feePlanRoutes'));
-
-// Installment Routes
-app.use('/api/installments', require('./routes/installmentRoutes'));
-
-// Payment Routes
-app.use('/api/payments', require('./routes/paymentRoutes'));
-
-// Fees Dashboard Routes
-app.use('/api/fees-dashboard', require('./routes/dashboardRoutes'));
-
-// Reports Routes
-app.use('/api/reports', require('./routes/reportRoutes'));
-
-// Invoices Routes
-app.use('/api/invoices', require('./routes/invoiceRoutes'));
-
-// Receipts Routes
-app.use('/api/receipts', require('./routes/receiptRoutes'));
-
-// Settings Routes
-app.use('/api/settings', require('./routes/settingsRoutes'));
-
-// Notification Routes
-app.use('/api/notifications', require('./routes/notificationRoutes'));
-
-// Employee Routes
-app.use('/api/employee', require('./routes/employee/employeeRoutes'));
-app.use('/api/employee/leaves', require('./routes/employee/leaveRoutes'));
-
-// Admin Attendance/Employee Routes
-app.use('/api/admin', require('./routes/admin/adminRoutes'));
-app.use('/api/admin/leaves', require('./routes/admin/leaveRoutes'));
-
-// Attendance Routes
-app.use('/api/attendance', require('./routes/attendance/attendanceRoutes'));
-
-// Certificate Routes
-app.use('/api/certificates', require('./routes/certificate/certificateRoutes'));
+routes.forEach(route => {
+  app.use(route.path, route.router);
+  app.use(`/api${route.path}`, route.router);
+});
 
 // 404 Route handler
 app.use((req, res, next) => {
