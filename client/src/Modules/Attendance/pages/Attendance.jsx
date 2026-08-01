@@ -292,7 +292,7 @@ export default function Attendance() {
       const res = await adminAttendanceApi.getMonthlyReport(reportEmployeeId, selected.year, selected.month);
       if (res.success) {
         setReportData(res.report || []);
-        setReportEmployeeInfo(res.employee || null);
+        setReportEmployeeInfo(prev => ({ ...prev, ...res.employee }));
       }
     } catch (err) {
       console.error('Failed to load monthly report:', err);
