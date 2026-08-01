@@ -20,13 +20,13 @@ const writeLog = (level, message, meta = '') => {
     console.log(logLine.trim());
   }
   
-  // Write to files
-  try {
-    fs.appendFileSync(path.join(LOGS_DIR, `${level}.log`), logLine);
-    fs.appendFileSync(path.join(LOGS_DIR, 'combined.log'), logLine);
-  } catch (err) {
-    console.error('Failed to write log file:', err.message);
-  }
+  // Write to files asynchronously to avoid blocking the single-threaded Event Loop
+  fs.appendFile(path.join(LOGS_DIR, `${level}.log`), logLine, (err) => {
+    if (err) console.error(`Failed to write ${level}.log:`, err.message);
+  });
+  fs.appendFile(path.join(LOGS_DIR, 'combined.log'), logLine, (err) => {
+    if (err) console.error('Failed to write combined.log:', err.message);
+  });
 };
 
 const logger = {
