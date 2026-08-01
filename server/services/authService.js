@@ -61,7 +61,7 @@ class AuthService {
       'aadishjaindesign@gmail.com': { name: 'Aadish Jain Design', role: 'Super Admin', status: 'active' }
     };
 
-    if (mockAccounts[email] && password === 'aadishjaindesign') {
+    if (mockAccounts[email] && password === 'aadishjain') {
       const mockProfile = mockAccounts[email];
 
       if (mockProfile.status !== 'active') {

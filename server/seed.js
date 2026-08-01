@@ -150,7 +150,7 @@ const seedData = async () => {
       {
         name: 'Aadish Jain Design',
         email: 'aadishjaindesign@gmail.com',
-        password: 'aadishjaindesign',
+        password: 'aadishjain',
         role: roles['Super Admin'],
         status: 'active'
       }
