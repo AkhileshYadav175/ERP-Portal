@@ -33,6 +33,24 @@ app.use(loggerMiddleware);
 // Serve static uploads
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
+// Root Route
+app.get('/', (req, res) => {
+  res.status(200).json({ 
+    success: true, 
+    message: 'Welcome to the ERP Portal API. Server is running successfully.',
+    healthCheck: '/api/health'
+  });
+});
+
+// Root API Route
+app.get('/api', (req, res) => {
+  res.status(200).json({ 
+    success: true, 
+    message: 'Welcome to the ERP Portal API.',
+    healthCheck: '/api/health'
+  });
+});
+
 // Health Check Route
 app.get('/api/health', (req, res) => {
   res.status(200).json({ success: true, message: 'ERP Portal server is healthy and running.' });
