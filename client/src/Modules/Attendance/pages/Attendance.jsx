@@ -83,6 +83,15 @@ export default function Attendance() {
     fetchData();
   }, []);
 
+  useEffect(() => {
+    if (success) {
+      const timer = setTimeout(() => {
+        setSuccess('');
+      }, 4000);
+      return () => clearTimeout(timer);
+    }
+  }, [success]);
+
   const handleApprove = async (id) => {
     setActionLoading(true);
     setError('');
