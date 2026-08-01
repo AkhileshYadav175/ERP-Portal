@@ -31,9 +31,13 @@ function App() {
 
       {/* Employee Attendance Standalone Routes */}
       <Route path={ROUTES.EMPLOYEE_SPLASH} element={<EmployeeSplash />} />
+      <Route path="/employee/" element={<EmployeeSplash />} />
       <Route path={ROUTES.EMPLOYEE_LOGIN} element={<EmployeeLogin />} />
+      <Route path="/employee/login/" element={<EmployeeLogin />} />
       <Route path={ROUTES.EMPLOYEE_REGISTER} element={<EmployeeRegister />} />
+      <Route path="/employee/register/" element={<EmployeeRegister />} />
       <Route path={ROUTES.EMPLOYEE_DASHBOARD} element={<EmployeeDashboard />} />
+      <Route path="/employee/dashboard/" element={<EmployeeDashboard />} />
 
       {/* Core Navigation Routes */}
       <Route
