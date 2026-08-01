@@ -72,7 +72,8 @@ const seedData = async () => {
       { name: 'Super Admin', description: 'Full access across all modules.' },
       { name: 'Attendance Admin', description: 'Restricted access to Personnel logbooks.' },
       { name: 'Website Admin', description: 'Restricted access to Site operations.' },
-      { name: 'Fees Admin', description: 'Restricted access to financials and billings.' }
+      { name: 'Fees Admin', description: 'Restricted access to financials and billings.' },
+      { name: 'Lead Admin', description: 'Restricted access to Lead management logs.' }
     ];
 
     const roles = {};
@@ -91,7 +92,9 @@ const seedData = async () => {
 
       // Module Admins get respective permissions
       {roleName: 'Attendance Admin', permissionCode: 'access_attendance'},
-      {roleName: 'Fees Admin', permissionCode: 'access_fees'}
+      {roleName: 'Website Admin', permissionCode: 'access_site'},
+      {roleName: 'Fees Admin', permissionCode: 'access_fees'},
+      {roleName: 'Lead Admin', permissionCode: 'access_leads'}
     ];
 
     for (let mapping of rolePermissionMappings) {
@@ -130,6 +133,13 @@ const seedData = async () => {
         email: 'fees@erp.com',
         password: 'admin123',
         role: roles['Fees Admin'],
+        status: 'active'
+      },
+      {
+        name: 'Lead Admin User',
+        email: 'leads@erp.com',
+        password: 'admin123',
+        role: roles['Lead Admin'],
         status: 'active'
       },
       {

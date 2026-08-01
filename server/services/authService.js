@@ -62,6 +62,7 @@ class AuthService {
       'attendance@erp.com': { name: 'Attendance Administrator', role: 'Attendance Admin', status: 'active' },
       'website@erp.com': { name: 'Website Administrator', role: 'Website Admin', status: 'active' },
       'fees@erp.com': { name: 'Fees Administrator', role: 'Fees Admin', status: 'active' },
+      'leads@erp.com': { name: 'Lead Administrator', role: 'Lead Admin', status: 'active' },
       'inactive@erp.com': { name: 'Inactive User', role: 'Super Admin', status: 'inactive' }
     };
 
@@ -87,6 +88,9 @@ class AuthService {
         ],
         'Fees Admin': [
           { code: 'access_fees', name: 'Fees Access', route: '/fees-management', module: 'Fees Management', icon: 'DollarSign' }
+        ],
+        'Lead Admin': [
+          { code: 'access_leads', name: 'Lead Access', route: '/lead-management', module: 'Lead Management', icon: 'UserCheck' }
         ]
       };
 
@@ -145,6 +149,7 @@ class AuthService {
       if (decoded.email.includes('attendance')) matchedRole = 'Attendance Admin';
       else if (decoded.email.includes('website')) matchedRole = 'Website Admin';
       else if (decoded.email.includes('fees')) matchedRole = 'Fees Admin';
+      else if (decoded.email.includes('leads')) matchedRole = 'Lead Admin';
 
       const mockPermissions = {
         'Super Admin': [
@@ -160,6 +165,9 @@ class AuthService {
         ],
         'Fees Admin': [
           { code: 'access_fees', name: 'Fees Access', route: '/fees-management', module: 'Fees Management', icon: 'DollarSign' }
+        ],
+        'Lead Admin': [
+          { code: 'access_leads', name: 'Lead Access', route: '/lead-management', module: 'Lead Management', icon: 'UserCheck' }
         ]
       };
 
