@@ -263,12 +263,24 @@ export default function Attendance() {
   const [reportLoading, setReportLoading] = useState(false);
   const [reportError, setReportError] = useState('');
 
-  // Dynamically compute the last 3 months list
+  // Dynamically compute the last 3 months list, going back only to dateOfJoining
   const reportMonthsList = useMemo(() => {
     const list = [];
     const today = new Date();
+    
+    // Determine joining date limit
+    const joiningDate = reportEmployeeInfo?.dateOfJoining ? new Date(reportEmployeeInfo.dateOfJoining) : new Date();
+    // Normalize joiningDate to the 1st of its month to allow selecting that entire month
+    const joiningMonthStart = new Date(joiningDate.getFullYear(), joiningDate.getMonth(), 1);
+
     for (let i = 0; i < 3; i++) {
       const d = new Date(today.getFullYear(), today.getMonth() - i, 1);
+      
+      // Stop adding past months if we go earlier than the joining month
+      if (d < joiningMonthStart) {
+        break;
+      }
+
       const label = d.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
       list.push({
         label,
@@ -278,7 +290,7 @@ export default function Attendance() {
       });
     }
     return list;
-  }, []);
+  }, [reportEmployeeInfo?.dateOfJoining]);
 
   // Fetch monthly report
   const fetchMonthlyReport = async () => {
@@ -312,7 +324,8 @@ export default function Attendance() {
         lastName: emp.lastName,
         department: emp.department,
         designation: emp.designation,
-        profilePicture: emp.profilePicture
+        profilePicture: emp.profilePicture,
+        dateOfJoining: emp.dateOfJoining || emp.createdAt || new Date()
       });
       setShowReportModal(true);
     }

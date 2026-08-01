@@ -304,7 +304,8 @@ exports.getEmployeeMonthlyReport = async (req, res, next) => {
         lastName: employee.lastName,
         department: employee.department || 'Unassigned',
         designation: employee.designation || 'Staff',
-        profilePicture: employee.profilePicture
+        profilePicture: employee.profilePicture,
+        dateOfJoining: employee.dateOfJoining || employee.createdAt
       },
       report
     });
