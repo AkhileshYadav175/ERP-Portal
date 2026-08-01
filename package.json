@@ -1,0 +1,9 @@
+{
+  "name": "erp-portal-root",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "build": "npm install --prefix server",
+    "start": "npm start --prefix server"
+  }
+}
