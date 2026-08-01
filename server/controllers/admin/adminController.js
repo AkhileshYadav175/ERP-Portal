@@ -248,11 +248,19 @@ exports.getEmployeeMonthlyReport = async (req, res, next) => {
       date: { $gte: startDate, $lte: endDate }
     }).sort({ date: 1 });
 
+    const joiningDate = employee.dateOfJoining || employee.createdAt || new Date();
+    const joiningDayStart = new Date(joiningDate);
+    joiningDayStart.setHours(0, 0, 0, 0);
+
+    const today = new Date();
+    today.setHours(23, 59, 59, 999);
+
     const report = [];
     const daysInMonth = endDate.getDate();
 
     for (let day = 1; day <= daysInMonth; day++) {
       const currentDate = new Date(yr, mn - 1, day);
+      currentDate.setHours(12, 0, 0, 0);
       
       // Find matching attendance log
       const record = attendanceRecords.find(r => {
@@ -265,10 +273,24 @@ exports.getEmployeeMonthlyReport = async (req, res, next) => {
       const dayOfWeek = currentDate.getDay();
       const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
 
+      let status = '-';
+      if (record) {
+        status = record.status;
+      } else {
+        const isFuture = currentDate > today;
+        const isBeforeJoining = currentDate < joiningDayStart;
+
+        if (isFuture || isBeforeJoining) {
+          status = '-';
+        } else {
+          status = isWeekend ? 'Weekend' : 'Absent';
+        }
+      }
+
       report.push({
         date: currentDate.toISOString(),
         dayOfWeek: currentDate.toLocaleDateString('en-US', { weekday: 'long' }),
-        status: record ? record.status : (isWeekend ? 'Weekend' : 'Absent'),
+        status: status,
         checkIn: record ? record.checkIn || '-' : '-',
         checkOut: record ? record.checkOut || '-' : '-',
         remarks: record ? record.remarks || '-' : '-'
