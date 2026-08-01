@@ -21,5 +21,15 @@ export const leadApi = {
   createLead: async (leadData) => {
     const response = await leadAxios.post('/lead', leadData);
     return response.data;
+  },
+
+  createOfflineLead: async (leadData) => {
+    const response = await leadAxios.post('/lead/offline', leadData);
+    return response.data;
+  },
+
+  updateLead: async (leadId, leadData) => {
+    const response = await leadAxios.put(`/lead/${leadId}`, leadData);
+    return response.data;
   }
 };

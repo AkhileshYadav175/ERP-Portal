@@ -39,5 +39,25 @@ export const leadService = {
       console.error('leadService.createLead failed:', error);
       throw error;
     }
+  },
+
+  createOfflineLead: async (leadData) => {
+    try {
+      const response = await leadApi.createOfflineLead(leadData);
+      return response.data;
+    } catch (error) {
+      console.error('leadService.createOfflineLead failed:', error);
+      throw error;
+    }
+  },
+
+  updateLead: async (leadId, leadData) => {
+    try {
+      const response = await leadApi.updateLead(leadId, leadData);
+      return response.data;
+    } catch (error) {
+      console.error('leadService.updateLead failed:', error);
+      throw error;
+    }
   }
 };

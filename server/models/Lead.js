@@ -29,6 +29,14 @@ const leadSchema = new mongoose.Schema(
       type: String,
       default: "New",
     },
+    counsellor: {
+      type: String,
+      default: "Unassigned",
+    },
+    date: {
+      type: Date,
+      default: Date.now,
+    },
   },
   { timestamps: true }
 );

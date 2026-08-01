@@ -104,24 +104,94 @@ const deleteLead = async (req, res) => {
   }
 };
 
-const updateLeadStatus = async (req, res) => {
+const updateLead = async (req, res) => {
   try {
-    const { status } = req.body;
-
-    if (!status) {
-      return res.status(400).json({ message: "Status is required" });
-    }
+    const { name, phone, email, message, course, source, status, counsellor, date } = req.body;
+    
+    const updateData = {};
+    if (name !== undefined) updateData.name = name.trim();
+    if (phone !== undefined) updateData.phone = phone.replace(/\D/g, "");
+    if (email !== undefined) updateData.email = email;
+    if (message !== undefined) updateData.message = message;
+    if (course !== undefined) updateData.course = course.trim();
+    if (source !== undefined) updateData.source = source;
+    if (status !== undefined) updateData.status = status;
+    if (counsellor !== undefined) updateData.counsellor = counsellor;
+    if (date !== undefined) updateData.date = date;
 
     const updated = await Lead.findByIdAndUpdate(
       req.params.id,
-      { status },
+      updateData,
       { new: true }
     );
 
-    res.json({ data: updated });
+    if (!updated) {
+      return res.status(404).json({ success: false, message: "Lead not found" });
+    }
+
+    res.json({ success: true, data: updated });
 
   } catch (err) {
-    res.status(500).json({ message: "Update error" });
+    console.error("❌ Update Lead Error:", err.message);
+    res.status(500).json({ success: false, message: "Update error" });
+  }
+};
+
+const createOfflineLead = async (req, res) => {
+  try {
+    let { name, phone, course, source, email, message, counsellor, date } = req.body;
+
+    if (!name || !phone || !course) {
+      return res.status(400).json({
+        success: false,
+        message: "Name, Phone, and Course are required",
+      });
+    }
+
+    name = name.trim();
+    course = course.trim();
+    phone = phone.replace(/\D/g, "");
+
+    if (phone.length !== 10) {
+      return res.status(400).json({
+        success: false,
+        message: "Phone must be exactly 10 digits",
+      });
+    }
+
+    // Since this is manually entered by admin, we don't do recent submission block.
+    // But we check if the exact phone/course duplicate already exists.
+    const existing = await Lead.findOne({ phone, course });
+    if (existing) {
+      return res.status(400).json({
+        success: false,
+        message: "Lead with this phone and course already exists",
+      });
+    }
+
+    const lead = await Lead.create({
+      name,
+      phone,
+      email,
+      message,
+      course,
+      source: source || "Walk-in",
+      counsellor: counsellor || "Unassigned",
+      date: date || new Date()
+    });
+
+    res.status(201).json({
+      success: true,
+      message: "Offline lead saved successfully",
+      data: lead,
+    });
+
+  } catch (error) {
+    console.error("❌ Create Offline Lead Error:", error.message);
+    res.status(500).json({
+      success: false,
+      message: "Server error",
+    });
   }
 };
 
@@ -129,5 +199,6 @@ module.exports = {
   createLead,
   getLeads,
   deleteLead,
-  updateLeadStatus,
+  updateLead,
+  createOfflineLead,
 };

@@ -351,7 +351,7 @@ export default function LeadDashboard() {
         ) : activeTab === 'offline' ? (
           <AdmissionTab />
         ) : activeTab === 'offlineLeads' ? (
-          <OfflineLeadsTab />
+          <OfflineLeadsTab leads={leads} refreshLeads={refreshLeads} />
         ) : activeTab !== 'online' ? (
           <div className="bg-white border border-[#EBEAE6] rounded-2xl p-16 text-center shadow-sm">
             <p className="text-xs font-bold text-slate-400">Coming soon</p>

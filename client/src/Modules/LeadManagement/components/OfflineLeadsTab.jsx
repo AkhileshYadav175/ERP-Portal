@@ -1,33 +1,70 @@
 import React, { useState } from 'react';
 import { Plus, List } from 'lucide-react';
 import OfflineLeadForm from './OfflineLeadForm';
+import { leadService } from '../services/leadService';
 
-export default function OfflineLeadsTab() {
+export default function OfflineLeadsTab({ leads = [], refreshLeads }) {
   const [nestedTab, setNestedTab] = useState('new-lead'); // 'new-lead' | 'saved-leads'
-  const [offlineLeads, setOfflineLeads] = useState([]);
   const [editingLead, setEditingLead] = useState(null);
 
-  const handleLeadSubmit = (leadData) => {
+  // Filter out online leads (which have source = "popup")
+  const offlineLeads = Array.isArray(leads) 
+    ? leads.filter(l => l.source !== 'popup') 
+    : [];
+
+  const handleLeadSubmit = async (leadData) => {
     if (!leadData) return; // cancelled
-    if (editingLead) {
-      setOfflineLeads(prev =>
-        prev.map(l => l.id === editingLead.id ? { ...leadData, id: l.id } : l)
-      );
+    try {
+      const payload = {
+        name: leadData.name,
+        phone: leadData.contact,
+        source: leadData.reference,
+        course: leadData.course,
+        counsellor: leadData.counsellor,
+        date: leadData.date
+      };
+
+      if (editingLead) {
+        await leadService.updateLead(editingLead._id || editingLead.id, payload);
+      } else {
+        await leadService.createOfflineLead(payload);
+      }
+
+      if (typeof refreshLeads === 'function') {
+        refreshLeads();
+      }
+
       setEditingLead(null);
       setNestedTab('saved-leads');
-    } else {
-      setOfflineLeads(prev => [{ ...leadData, id: Date.now().toString() }, ...prev]);
-      setNestedTab('saved-leads');
+    } catch (err) {
+      alert(err.response?.data?.message || 'Failed to save offline lead.');
     }
   };
 
   const handleEditLead = (lead) => {
-    setEditingLead(lead);
+    setEditingLead({
+      ...lead,
+      id: lead._id || lead.id,
+      contact: lead.phone,
+      reference: lead.source,
+      // Normalize date to YYYY-MM-DD
+      date: lead.date ? new Date(lead.date).toISOString().slice(0, 10) : new Date().toISOString().slice(0, 10)
+    });
     setNestedTab('new-lead');
   };
 
-  const handleDeleteLead = (id) => {
-    setOfflineLeads(prev => prev.filter(l => l.id !== id));
+  const handleDeleteLead = async (id) => {
+    if (window.confirm('Are you sure you want to delete this lead?')) {
+      try {
+        await leadService.deleteLead(id);
+        if (typeof refreshLeads === 'function') {
+          refreshLeads();
+        }
+      } catch (err) {
+        console.error(err);
+        alert('Failed to delete lead.');
+      }
+    }
   };
 
   const handleCancelEdit = () => {
@@ -100,27 +137,27 @@ export default function OfflineLeadsTab() {
               {/* Table Rows */}
               {offlineLeads.map(lead => (
                 <div
-                  key={lead.id}
+                  key={lead._id || lead.id}
                   className="grid grid-cols-7 gap-2 px-5 py-3.5 border-b border-[#F0EEEA] last:border-b-0 hover:bg-[#FAFAF9] transition-colors items-center"
                 >
                   <span className="text-xs font-bold text-slate-800 truncate">{lead.name}</span>
-                  <span className="text-xs font-semibold text-slate-600">{lead.contact}</span>
-                  <span className="text-[10px] font-black text-slate-500 uppercase tracking-wider">{lead.reference}</span>
+                  <span className="text-xs font-semibold text-slate-600">{lead.phone}</span>
+                  <span className="text-[10px] font-black text-slate-500 uppercase tracking-wider">{lead.source}</span>
                   <span className="text-xs font-semibold text-slate-700 truncate">{lead.course}</span>
                   <span className="text-xs font-semibold text-slate-600">{lead.counsellor || '—'}</span>
                   <span className="text-[10px] font-bold text-slate-500">
-                    {new Date(lead.date).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}
+                    {new Date(lead.date || lead.createdAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}
                   </span>
                   <div className="flex items-center justify-end gap-2">
                     <button
                       onClick={() => handleEditLead(lead)}
-                      className="text-[10px] font-black text-[#E31C1C] hover:underline cursor-pointer"
+                      className="text-[10px] font-black text-[#E31C1C] hover:underline cursor-pointer bg-transparent border-0 outline-none"
                     >
                       Edit
                     </button>
                     <button
-                      onClick={() => handleDeleteLead(lead.id)}
-                      className="text-[10px] font-black text-slate-400 hover:text-red-600 cursor-pointer"
+                      onClick={() => handleDeleteLead(lead._id || lead.id)}
+                      className="text-[10px] font-black text-slate-400 hover:text-red-600 cursor-pointer bg-transparent border-0 outline-none"
                     >
                       Delete
                     </button>
