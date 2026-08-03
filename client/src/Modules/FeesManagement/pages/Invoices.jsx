@@ -242,7 +242,7 @@ const Invoices = () => {
             <style>{`
               @media print {
                 /* Hide everything on the page */
-                body * {
+                body {
                   visibility: hidden !important;
                 }
                 /* Show only the printable invoice div and its contents */
