@@ -10,8 +10,10 @@ exports.login = async (req, res) => {
     return res.status(400).json({ success: false, message: 'Please provide an email and password' });
   }
 
+  const cleanEmail = email.trim().toLowerCase();
+
   try {
-    const authData = await authService.authenticate(email, password);
+    const authData = await authService.authenticate(cleanEmail, password);
     return res.status(200).json({
       success: true,
       token: authData.token,
