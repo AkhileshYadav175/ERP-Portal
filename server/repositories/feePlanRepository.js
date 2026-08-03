@@ -10,7 +10,7 @@ class FeePlanRepository {
    * @param {string} studentId - Student database Object ID.
    */
   async existsActivePlan(studentId) {
-    const plan = await FeePlan.findOne({ studentId, deletedAt: null });
+    const plan = await FeePlan.findOne({ studentId, deletedAt: null }).lean();
     return !!plan;
   }
 
@@ -28,7 +28,8 @@ class FeePlanRepository {
    */
   async findByStudentId(studentId) {
     return await FeePlan.findOne({ studentId, deletedAt: null })
-      .populate('student');
+      .populate('student')
+      .lean();
   }
 
   /**

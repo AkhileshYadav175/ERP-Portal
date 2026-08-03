@@ -33,7 +33,8 @@ class InvoiceRepository {
   async findById(id) {
     return await Invoice.findById(id)
       .populate('studentId', 'fullName studentId course mobile email fatherName address feePlan')
-      .populate('installmentId', 'installmentNo dueDate amount status');
+      .populate('installmentId', 'installmentNo dueDate amount status')
+      .lean();
   }
 
   /**
@@ -48,7 +49,8 @@ class InvoiceRepository {
       .skip(skip)
       .limit(limit)
       .populate('studentId', 'fullName studentId course mobile email')
-      .populate('installmentId', 'installmentNo dueDate amount');
+      .populate('installmentId', 'installmentNo dueDate amount')
+      .lean();
   }
 
   /**

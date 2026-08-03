@@ -7,16 +7,16 @@ const mongoose = require('mongoose');
 const SettingsSchema = new mongoose.Schema(
   {
     institute: {
-      name: { type: String, default: 'JCMS ERP Academy' },
-      logo: { type: String, default: '' }, // Logo placeholder string
-      address: { type: String, default: '12, Corporate Block, Educational Hub' },
-      city: { type: String, default: 'New Delhi' },
-      state: { type: String, default: 'Delhi' },
+      name: { type: String, default: 'Jains Computer' },
+      logo: { type: String, default: '' },
+      address: { type: String, default: '13, Shivpuri Colony, Main Kalwar Road, Jhotwara' },
+      city: { type: String, default: 'Jaipur' },
+      state: { type: String, default: 'Rajasthan' },
       country: { type: String, default: 'India' },
-      pincode: { type: String, default: '110001' },
-      mobile: { type: String, default: '9876543210' },
-      email: { type: String, default: 'contact@jcmsacademy.com' },
-      website: { type: String, default: 'www.jcmsacademy.com' }
+      pincode: { type: String, default: '302012' },
+      mobile: { type: String, default: '+91-9571406998' },
+      email: { type: String, default: 'contact@jainscomputer.com' },
+      website: { type: String, default: 'www.jainscomputer.com' }
     },
     fee: {
       defaultCurrency: { type: String, default: 'INR' },

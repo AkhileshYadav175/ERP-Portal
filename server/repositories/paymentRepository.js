@@ -24,7 +24,8 @@ class PaymentRepository {
     return await Payment.findById(id)
       .populate('student', 'fullName studentId course')
       .populate('receivedBy', 'name email')
-      .populate('receipt');
+      .populate('receipt')
+      .lean();
   }
 
   /**
@@ -37,7 +38,8 @@ class PaymentRepository {
       .populate('student', 'fullName studentId course')
       .populate('installment', 'installmentNo dueDate amount')
       .populate('receivedBy', 'name email')
-      .populate('receipt');
+      .populate('receipt')
+      .lean();
   }
 
   /**
@@ -48,7 +50,8 @@ class PaymentRepository {
       .sort({ paymentDate: -1 })
       .populate('student', 'fullName studentId course')
       .populate('receivedBy', 'name email')
-      .populate('receipt');
+      .populate('receipt')
+      .lean();
   }
 
   /**
@@ -66,7 +69,7 @@ class PaymentRepository {
    * @param {Object|null} session - Transaction session.
    */
   async find(filter, sort = {}, session = null) {
-    const query = Payment.find(filter).sort(sort);
+    const query = Payment.find(filter).sort(sort).lean();
     if (session) query.session(session);
     return await query;
   }
@@ -81,7 +84,8 @@ class PaymentRepository {
       .limit(limit)
       .populate('studentId', 'fullName studentId course')
       .populate('receivedBy', 'name email')
-      .populate('receipt');
+      .populate('receipt')
+      .lean();
   }
 }
 

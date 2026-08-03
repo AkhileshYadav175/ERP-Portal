@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { 
   ArrowLeft, User, CreditCard, 
   Check, DollarSign, Wallet, RefreshCw
@@ -35,6 +35,45 @@ const Payments = ({ studentId, onNavigate }) => {
   const [paymentSuccess, setPaymentSuccess] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [validationError, setValidationError] = useState('');
+
+  const lastLoadedStudentId = useRef('');
+
+  // Auto-populate installment and due amount on student change
+  useEffect(() => {
+    if (selectedStudent) {
+      const studentIdStr = selectedStudent._id;
+      if (lastLoadedStudentId.current !== studentIdStr) {
+        const remaining = selectedStudent.feePlan?.remainingAmount || 0;
+        if (installments && installments.length > 0) {
+          const nextInstallment = installments.find(i => i.status !== 'PAID');
+          if (nextInstallment) {
+            setPaymentForm(prev => ({
+              ...prev,
+              installmentId: nextInstallment._id,
+              amount: nextInstallment.remainingAmount || ''
+            }));
+            lastLoadedStudentId.current = studentIdStr;
+          } else {
+            setPaymentForm(prev => ({
+              ...prev,
+              installmentId: '',
+              amount: remaining || ''
+            }));
+            lastLoadedStudentId.current = studentIdStr;
+          }
+        } else if (!installmentsLoading) {
+          setPaymentForm(prev => ({
+            ...prev,
+            installmentId: '',
+            amount: remaining || ''
+          }));
+          lastLoadedStudentId.current = studentIdStr;
+        }
+      }
+    } else {
+      lastLoadedStudentId.current = '';
+    }
+  }, [selectedStudent, installments, installmentsLoading]);
 
   // Find and setup initial student profile
   useEffect(() => {

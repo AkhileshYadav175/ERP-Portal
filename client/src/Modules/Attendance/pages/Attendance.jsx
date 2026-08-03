@@ -59,11 +59,13 @@ export default function Attendance() {
       setLoading(true);
       setError('');
       
-      const pendingRes = await adminAttendanceApi.getPendingApprovals();
-      const summaryRes = await adminAttendanceApi.getDailySummary();
-      const activeRes = await adminAttendanceApi.getActiveEmployees();
-      const statsRes = await adminAttendanceApi.getAttendanceStats();
-      const leavesRes = await adminAttendanceApi.getAllLeaves();
+      const [pendingRes, summaryRes, activeRes, statsRes, leavesRes] = await Promise.all([
+        adminAttendanceApi.getPendingApprovals(),
+        adminAttendanceApi.getDailySummary(),
+        adminAttendanceApi.getActiveEmployees(),
+        adminAttendanceApi.getAttendanceStats(),
+        adminAttendanceApi.getAllLeaves()
+      ]);
       
       if (pendingRes.success) setPendingApprovals(pendingRes.pending || []);
       if (summaryRes.success) setDailySummary(summaryRes.summary || []);

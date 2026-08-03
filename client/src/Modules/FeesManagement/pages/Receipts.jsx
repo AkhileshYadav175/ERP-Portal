@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Eye, Printer, X, RefreshCw } from 'lucide-react';
+import { Eye, Printer, X, RefreshCw, GraduationCap } from 'lucide-react';
 import { useSystemSettings } from '../context/SettingsContext';
 import { feesApi } from '../../../api/feesApi';
 import CommonTable from '../components/CommonTable';
@@ -228,6 +228,35 @@ const Receipts = () => {
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs print:relative print:inset-auto print:bg-white print:p-0">
           <div className="relative w-full max-w-2xl bg-white border border-[#EBEAE6] rounded-3xl shadow-2xl overflow-hidden max-h-[90vh] flex flex-col print:border-none print:shadow-none print:max-h-full print:w-full">
             
+            {/* Dynamic CSS styles injected specifically for clean printing */}
+            <style>{`
+              @media print {
+                /* Hide everything on the page */
+                body * {
+                  visibility: hidden !important;
+                }
+                /* Show only the printable receipt div and its contents */
+                #printable-receipt, #printable-receipt * {
+                  visibility: visible !important;
+                }
+                #printable-receipt {
+                  position: absolute !important;
+                  left: 0 !important;
+                  top: 0 !important;
+                  width: 100% !important;
+                  height: auto !important;
+                  overflow: visible !important;
+                  padding: 0 !important;
+                  margin: 0 !important;
+                }
+                /* Hide browser-default header (title, URL) and footer (page number, date) */
+                @page {
+                  size: auto;
+                  margin: 10mm 15mm;
+                }
+              }
+            `}</style>
+
             {/* Modal Header */}
             <div className="flex justify-between items-center p-4 border-b border-[#FAF9F6] print:hidden">
               <span className="text-xs font-extrabold text-slate-450 uppercase tracking-wider">
@@ -248,15 +277,25 @@ const Receipts = () => {
               <div className="flex justify-between items-start">
                 <div className="space-y-1">
                   {settings?.receipt?.showLogo && (
-                    <div className="h-8 w-16 bg-gradient-to-br from-amber-400 to-orange-500 text-white rounded-lg flex items-center justify-center font-bold text-xs uppercase tracking-wide">
-                      {settings?.institute?.logo || 'LOGO'}
+                    <div className="mb-2">
+                      {settings?.institute?.logo && settings.institute.logo.startsWith('http') ? (
+                        <img 
+                          src={settings.institute.logo} 
+                          alt="Logo" 
+                          className="h-10 w-auto object-contain" 
+                        />
+                      ) : (
+                        <div className="h-10 w-10 bg-amber-500 text-white rounded-xl flex items-center justify-center shadow-md shadow-amber-500/10">
+                          <GraduationCap size={22} className="stroke-[2.5]" />
+                        </div>
+                      )}
                     </div>
                   )}
                   <h2 className="text-base font-extrabold text-slate-900 mt-1">
-                    {settings?.institute?.name || 'JCMS ERP Academy'}
+                    {settings?.institute?.name || 'Jains Computer'}
                   </h2>
-                  <p className="text-[10px] text-slate-400 leading-normal max-w-[250px]">
-                    {settings?.institute?.address || '12, Corporate Block, Educational Hub'}, {settings?.institute?.city || 'New Delhi'}, {settings?.institute?.state || 'Delhi'} - {settings?.institute?.pincode || '110001'}
+                  <p className="text-[10px] text-slate-450 leading-normal max-w-[250px]">
+                    {settings?.institute?.address || '13, Shivpuri Colony, Main Kalwar Road, Jhotwara'}, {settings?.institute?.city || 'Jaipur'}, {settings?.institute?.state || 'Rajasthan'} - {settings?.institute?.pincode || '302012'}
                   </p>
                 </div>
                 <div className="text-right space-y-1">
@@ -274,7 +313,7 @@ const Receipts = () => {
                   <span className="text-[9px] uppercase tracking-wide text-slate-400 font-extrabold">Received From Student:</span>
                   <div className="text-slate-800 font-bold">{activeReceipt.studentId?.fullName || 'N/A'}</div>
                   <div className="text-slate-500 font-mono">Reg ID: {activeReceipt.studentId?.studentId || 'N/A'}</div>
-                  <div className="text-slate-500">Course Class: {activeInvoice?.studentId?.course || activeReceipt.studentId?.course || 'N/A'}</div>
+                  <div className="text-slate-500">Course Class: {activeReceipt.studentId?.course || 'N/A'}</div>
                 </div>
                 <div className="space-y-1 bg-[#FAF9F6]/50 p-4 border border-[#EBEAE6] rounded-2xl">
                   <span className="text-[9px] uppercase tracking-wide text-slate-400 font-extrabold">Collection Mode:</span>
@@ -290,8 +329,6 @@ const Receipts = () => {
                   <thead>
                     <tr className="bg-slate-50 border-b border-slate-150 text-[10px] font-extrabold text-slate-500 uppercase tracking-wide">
                       <th className="px-4 py-3">Fee Particular description</th>
-                      <th className="px-4 py-3 text-right">Taxable Subtotal</th>
-                      <th className="px-4 py-3 text-right">GST (18% Std)</th>
                       <th className="px-4 py-3 text-right">Amount (₹)</th>
                     </tr>
                   </thead>
@@ -300,8 +337,6 @@ const Receipts = () => {
                       <td className="px-4 py-3">
                         ERP Fee Payment Receipt (Voucher collection item: Class {activeReceipt.studentId?.course || 'N/A'})
                       </td>
-                      <td className="px-4 py-3 text-right">{formatINR(Math.round(activeReceipt.amount / 1.18))}</td>
-                      <td className="px-4 py-3 text-right">{formatINR(activeReceipt.amount - Math.round(activeReceipt.amount / 1.18))}</td>
                       <td className="px-4 py-3 text-right font-extrabold text-slate-800">{formatINR(activeReceipt.amount)}</td>
                     </tr>
                   </tbody>

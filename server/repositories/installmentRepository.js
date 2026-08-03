@@ -19,7 +19,8 @@ class InstallmentRepository {
    */
   async findByStudentId(studentId) {
     return await Installment.find({ studentId, deletedAt: null })
-      .sort({ installmentNo: 1 });
+      .sort({ installmentNo: 1 })
+      .lean();
   }
 
   /**
@@ -28,7 +29,7 @@ class InstallmentRepository {
    * @param {number} installmentNo - Number of target installment.
    */
   async findByIdAndNo(studentId, installmentNo) {
-    return await Installment.findOne({ studentId, installmentNo, deletedAt: null });
+    return await Installment.findOne({ studentId, installmentNo, deletedAt: null }).lean();
   }
 
   /**
@@ -36,7 +37,7 @@ class InstallmentRepository {
    * @param {string} id - Installment database Object ID.
    */
   async findById(id) {
-    return await Installment.findOne({ _id: id, deletedAt: null });
+    return await Installment.findOne({ _id: id, deletedAt: null }).lean();
   }
 
   /**
@@ -85,7 +86,7 @@ class InstallmentRepository {
       deletedAt: null,
       status: { $nin: ['PAID', 'OVERDUE'] },
       dueDate: { $lt: date }
-    });
+    }).lean();
   }
 
   /**
@@ -114,7 +115,7 @@ class InstallmentRepository {
    * @param {Object|null} session - Transaction session.
    */
   async find(filter, sort = {}, session = null) {
-    const query = Installment.find({ ...filter, deletedAt: null }).sort(sort);
+    const query = Installment.find({ ...filter, deletedAt: null }).sort(sort).lean();
     if (session) query.session(session);
     return await query;
   }
@@ -143,7 +144,8 @@ class InstallmentRepository {
     })
     .sort({ dueDate: 1 })
     .limit(limit)
-    .populate('studentId', 'fullName studentId course mobile');
+    .populate('studentId', 'fullName studentId course mobile')
+    .lean();
   }
 
   /**
@@ -157,7 +159,8 @@ class InstallmentRepository {
     })
     .sort({ dueDate: 1 })
     .limit(limit)
-    .populate('studentId', 'fullName studentId course mobile');
+    .populate('studentId', 'fullName studentId course mobile')
+    .lean();
   }
 }
 

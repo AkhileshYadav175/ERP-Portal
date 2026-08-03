@@ -51,7 +51,8 @@ class ReceiptRepository {
    */
   async findByPaymentId(paymentId) {
     return await Receipt.findOne({ paymentId })
-      .populate('student', 'fullName studentId course');
+      .populate('student', 'fullName studentId course')
+      .lean();
   }
 
   /**
@@ -81,7 +82,8 @@ class ReceiptRepository {
           path: 'receivedBy',
           select: 'name email'
         }
-      });
+      })
+      .lean();
   }
 
   /**
@@ -98,7 +100,8 @@ class ReceiptRepository {
           path: 'receivedBy',
           select: 'name email'
         }
-      });
+      })
+      .lean();
   }
 }
 

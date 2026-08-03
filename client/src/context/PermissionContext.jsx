@@ -1,12 +1,14 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useState, useMemo } from 'react';
 
 const PermissionContext = createContext(null);
 
 export const PermissionProvider = ({ children }) => {
   const [permissions, setPermissions] = useState([]);
 
+  const contextValue = useMemo(() => ({ permissions, setPermissions }), [permissions]);
+
   return (
-    <PermissionContext.Provider value={{ permissions, setPermissions }}>
+    <PermissionContext.Provider value={contextValue}>
       {children}
     </PermissionContext.Provider>
   );

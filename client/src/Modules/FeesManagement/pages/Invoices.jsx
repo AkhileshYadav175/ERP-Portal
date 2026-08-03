@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { FileText, Eye, X, RefreshCw } from 'lucide-react';
+import { FileText, Eye, X, RefreshCw, GraduationCap } from 'lucide-react';
 import { useSystemSettings } from '../context/SettingsContext';
 import { feesApi } from '../../../api/feesApi';
 import CommonTable from '../components/CommonTable';
@@ -18,6 +18,7 @@ const Invoices = () => {
   const [invoicesList, setInvoicesList] = useState([]);
   const [totalCount, setTotalCount] = useState(0);
   const [activeInvoice, setActiveInvoice] = useState(null);
+  const [activeInstallments, setActiveInstallments] = useState([]);
   
   // UI states
   const [loading, setLoading] = useState(false);
@@ -57,10 +58,19 @@ const Invoices = () => {
 
   const loadInvoiceDetails = async (id) => {
     setModalLoading(true);
+    setActiveInstallments([]); // Reset previous installments list
     try {
       const res = await feesApi.getInvoiceById(id);
       if (res.success) {
         setActiveInvoice(res.data);
+        
+        // Fetch installments for this student
+        if (res.data.studentId?._id) {
+          const instRes = await feesApi.getInstallmentsByStudent(res.data.studentId._id);
+          if (instRes.success) {
+            setActiveInstallments(instRes.data.installmentList || []);
+          }
+        }
       }
     } catch (err) {
       console.error('Error loading invoice details:', err);
@@ -228,6 +238,35 @@ const Invoices = () => {
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs print:relative print:inset-auto print:bg-white print:p-0">
           <div className="relative w-full max-w-2xl bg-white border border-[#EBEAE6] rounded-3xl shadow-2xl overflow-hidden max-h-[90vh] flex flex-col print:border-none print:shadow-none print:max-h-full print:w-full">
             
+            {/* Dynamic CSS styles injected specifically for clean printing */}
+            <style>{`
+              @media print {
+                /* Hide everything on the page */
+                body * {
+                  visibility: hidden !important;
+                }
+                /* Show only the printable invoice div and its contents */
+                #printable-invoice, #printable-invoice * {
+                  visibility: visible !important;
+                }
+                #printable-invoice {
+                  position: absolute !important;
+                  left: 0 !important;
+                  top: 0 !important;
+                  width: 100% !important;
+                  height: auto !important;
+                  overflow: visible !important;
+                  padding: 0 !important;
+                  margin: 0 !important;
+                }
+                /* Hide browser-default header (title, URL) and footer (page number, date) */
+                @page {
+                  size: auto;
+                  margin: 10mm 15mm;
+                }
+              }
+            `}</style>
+
             {/* Modal Header */}
             <div className="flex justify-between items-center p-4 border-b border-[#FAF9F6] print:hidden">
               <span className="text-xs font-extrabold text-slate-450 uppercase tracking-wider">
@@ -248,8 +287,18 @@ const Invoices = () => {
               <div className="flex justify-between items-start">
                 <div className="space-y-1">
                   {settings?.receipt?.showLogo && (
-                    <div className="h-8 w-16 bg-gradient-to-br from-amber-400 to-orange-500 text-white rounded-lg flex items-center justify-center font-bold text-xs uppercase tracking-wide">
-                      {settings?.institute?.logo || 'LOGO'}
+                    <div className="mb-2">
+                      {settings?.institute?.logo && settings.institute.logo.startsWith('http') ? (
+                        <img 
+                          src={settings.institute.logo} 
+                          alt="Logo" 
+                          className="h-10 w-auto object-contain" 
+                        />
+                      ) : (
+                        <div className="h-10 w-10 bg-amber-500 text-white rounded-xl flex items-center justify-center shadow-md shadow-amber-500/10">
+                          <GraduationCap size={22} className="stroke-[2.5]" />
+                        </div>
+                      )}
                     </div>
                   )}
                   <h2 className="text-base font-extrabold text-slate-900 mt-1">
@@ -290,8 +339,6 @@ const Invoices = () => {
                   <thead>
                     <tr className="bg-slate-50 border-b border-slate-150 text-[10px] font-extrabold text-slate-500 uppercase tracking-wide">
                       <th className="px-4 py-3">Fee Particular description</th>
-                      <th className="px-4 py-3 text-right">Taxable Subtotal</th>
-                      <th className="px-4 py-3 text-right">GST (18% Std)</th>
                       <th className="px-4 py-3 text-right">Amount (₹)</th>
                     </tr>
                   </thead>
@@ -300,16 +347,72 @@ const Invoices = () => {
                       <td className="px-4 py-3">
                         ERP Fee Term Installment (Particular Item charge: Class {activeInvoice.studentId?.course || 'N/A'})
                       </td>
-                      <td className="px-4 py-3 text-right">{formatINR(Math.round(activeInvoice.amount / 1.18))}</td>
-                      <td className="px-4 py-3 text-right">{formatINR(activeInvoice.amount - Math.round(activeInvoice.amount / 1.18))}</td>
                       <td className="px-4 py-3 text-right font-extrabold text-slate-800">{formatINR(activeInvoice.amount)}</td>
                     </tr>
                   </tbody>
                 </table>
               </div>
 
+              {/* Installment History Ledger Statement */}
+              {activeInstallments.length > 0 && (
+                <div className="space-y-2 mt-4">
+                  <h4 className="text-[10px] uppercase tracking-wide text-slate-400 font-extrabold pb-1 border-b border-slate-100">
+                    Installment Ledger Summary (Full Fee Plan Details)
+                  </h4>
+                  <div className="border border-slate-150 rounded-2xl overflow-hidden text-xs">
+                    <table className="w-full text-left border-collapse">
+                      <thead>
+                        <tr className="bg-slate-50 border-b border-slate-150 text-[9px] font-extrabold text-slate-500 uppercase tracking-wide">
+                          <th className="px-4 py-2">Installment Term</th>
+                          <th className="px-4 py-2">Due Date</th>
+                          <th className="px-4 py-2 text-right">Term Amount</th>
+                          <th className="px-4 py-2 text-right">Remaining Due</th>
+                          <th className="px-4 py-2 text-center">Status</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {activeInstallments.map((inst) => {
+                          const isCurrent = activeInvoice.installmentId?._id === inst._id;
+                          return (
+                            <tr 
+                              key={inst._id} 
+                              className={`border-b border-slate-100 font-semibold text-slate-655 ${
+                                isCurrent ? 'bg-amber-50/40 text-slate-800 font-bold' : ''
+                              }`}
+                            >
+                              <td className="px-4 py-2 flex items-center gap-1.5">
+                                <span>Term #{inst.installmentNo}</span>
+                                {isCurrent && (
+                                  <span className="text-[8px] px-1.5 py-0.5 bg-amber-100 text-amber-700 font-bold uppercase rounded-md tracking-wider">
+                                    Current Invoice
+                                  </span>
+                                )}
+                              </td>
+                              <td className="px-4 py-2 text-slate-500">{formatDate(inst.dueDate)}</td>
+                              <td className="px-4 py-2 text-right">{formatINR(inst.amount)}</td>
+                              <td className="px-4 py-2 text-right">{formatINR(inst.remainingAmount)}</td>
+                              <td className="px-4 py-2 text-center">
+                                <span className={`text-[9px] px-2 py-0.5 rounded-full font-bold inline-block border ${
+                                  inst.status === 'PAID' 
+                                    ? 'bg-emerald-50 border-emerald-100 text-emerald-600' 
+                                    : inst.status === 'OVERDUE'
+                                    ? 'bg-rose-50 border-rose-100 text-rose-600'
+                                    : 'bg-amber-50 border-amber-100 text-amber-600'
+                                }`}>
+                                  {inst.status}
+                                </span>
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              )}
+
               {/* Terms and Sign block */}
-              <div className="grid grid-cols-2 gap-6 pt-4">
+              <div className="grid grid-cols-2 gap-6 pt-2">
                 <div className="space-y-1">
                   <span className="text-[9px] uppercase tracking-wide text-slate-400 font-extrabold">Terms & Conditions:</span>
                   <p className="text-[9px] text-slate-400 font-medium leading-relaxed">

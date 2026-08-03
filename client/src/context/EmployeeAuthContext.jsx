@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useMemo, useCallback } from 'react';
 import { employeeApi } from '../api/employeeApi';
 
 const EmployeeAuthContext = createContext(null);
@@ -25,7 +25,7 @@ export const EmployeeAuthProvider = ({ children }) => {
     initializeEmployeeAuth();
   }, [employeeToken]);
 
-  const employeeLogin = async (email, password) => {
+  const employeeLogin = useCallback(async (email, password) => {
     try {
       const data = await employeeApi.login(email, password);
       const { token, employee: employeeData } = data;
@@ -40,17 +40,26 @@ export const EmployeeAuthProvider = ({ children }) => {
       const message = error.response?.data?.message || 'Login failed. Please check credentials.';
       return { success: false, error: message };
     }
-  };
+  }, []);
 
-  const employeeLogout = () => {
+  const employeeLogout = useCallback(() => {
     localStorage.removeItem('employeeToken');
     localStorage.removeItem('employee');
     setEmployeeToken('');
     setEmployee(null);
-  };
+  }, []);
+
+  const contextValue = useMemo(() => ({
+    employee,
+    employeeToken,
+    loading,
+    employeeLogin,
+    employeeLogout,
+    setEmployee
+  }), [employee, employeeToken, loading, employeeLogin, employeeLogout]);
 
   return (
-    <EmployeeAuthContext.Provider value={{ employee, employeeToken, loading, employeeLogin, employeeLogout, setEmployee }}>
+    <EmployeeAuthContext.Provider value={contextValue}>
       {children}
     </EmployeeAuthContext.Provider>
   );

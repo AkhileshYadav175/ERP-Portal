@@ -52,11 +52,33 @@ class FeePlanService {
 
     // Save to Database
     const newPlan = await feePlanRepository.create(finalPlan);
+    const invoiceRepository = require('../repositories/invoiceRepository');
 
-    // Auto-generate installments if installment plan is chosen
+    // Auto-generate installments and invoices if installment plan is chosen
     if (paymentPlan === 'INSTALLMENT') {
       const installmentService = require('./installmentService');
-      await installmentService.generateInstallments(newPlan, creatorId);
+      const createdInstallments = await installmentService.generateInstallments(newPlan, creatorId);
+      
+      // Create invoice for each installment
+      for (const inst of createdInstallments) {
+        await invoiceRepository.create({
+          studentId,
+          installmentId: inst._id,
+          amount: inst.amount,
+          dueDate: inst.dueDate,
+          status: 'PENDING'
+        });
+      }
+    } else {
+      // FULL_PAYMENT plan
+      // Create a single invoice for full payment
+      await invoiceRepository.create({
+        studentId,
+        installmentId: null,
+        amount: totalFees,
+        dueDate: firstDueDate || new Date(),
+        status: 'PENDING'
+      });
     }
 
     // Audit Log
@@ -135,14 +157,40 @@ class FeePlanService {
     // Update DB
     const updatedPlan = await feePlanRepository.update(studentId, recalculatedData);
 
-    // Regenerate or clean up installments if plan metrics change before any payment is recorded
+    // Regenerate or clean up installments and invoices if plan metrics change before any payment is recorded
     if (plan.paidAmount === 0) {
       const installmentService = require('./installmentService');
+      const invoiceRepository = require('../repositories/invoiceRepository');
+      const Invoice = require('../models/Invoice');
+      
+      // Clean up previous unpaid invoices
+      await Invoice.deleteMany({ studentId });
+
       if (paymentPlan === 'INSTALLMENT') {
-        await installmentService.regenerateInstallments(plan._id, updatedPlan, modifierId);
-      } else if (paymentPlan === 'FULL_PAYMENT' && plan.paymentPlan === 'INSTALLMENT') {
+        const createdInstallments = await installmentService.regenerateInstallments(plan._id, updatedPlan, modifierId);
+        
+        // Create fresh invoices
+        for (const inst of createdInstallments) {
+          await invoiceRepository.create({
+            studentId,
+            installmentId: inst._id,
+            amount: inst.amount,
+            dueDate: inst.dueDate,
+            status: 'PENDING'
+          });
+        }
+      } else if (paymentPlan === 'FULL_PAYMENT') {
         const installmentRepository = require('../repositories/installmentRepository');
         await installmentRepository.deleteManyByPlan(plan._id);
+
+        // Create a single invoice for full payment
+        await invoiceRepository.create({
+          studentId,
+          installmentId: null,
+          amount: totalFees,
+          dueDate: firstDueDate || new Date(),
+          status: 'PENDING'
+        });
       }
     }
 
@@ -167,6 +215,9 @@ class FeePlanService {
     if (!plan) {
       throw new NotFoundError('Fee Plan not found for this student.');
     }
+
+    const Invoice = require('../models/Invoice');
+    await Invoice.deleteMany({ studentId });
 
     const deletedPlan = await feePlanRepository.softDelete(studentId, userId);
 

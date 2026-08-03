@@ -32,4 +32,8 @@ const AttendanceSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+// Optimize queries for finding employee attendance records by date range
+AttendanceSchema.index({ employee: 1, date: 1 });
+AttendanceSchema.index({ date: 1 });
+
 module.exports = mongoose.model('Attendance', AttendanceSchema);

@@ -28,7 +28,8 @@ class ActivityLogRepository {
   async findByStudentId(studentId) {
     return await FeesActivityLog.find({ studentId })
       .sort({ createdAt: -1 })
-      .populate('performedBy', 'name email');
+      .populate('performedBy', 'name email')
+      .lean();
   }
 
   /**
@@ -40,7 +41,8 @@ class ActivityLogRepository {
       .sort({ createdAt: -1 })
       .limit(limit)
       .populate('performedBy', 'name email')
-      .populate('studentId', 'fullName studentId');
+      .populate('studentId', 'fullName studentId')
+      .lean();
   }
 }
 

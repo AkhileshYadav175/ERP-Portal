@@ -15,7 +15,7 @@ class StudentRepository {
     if (excludeId) {
       filter._id = { $ne: excludeId };
     }
-    const student = await Student.findOne(filter);
+    const student = await Student.findOne(filter).lean();
     return !!student;
   }
 
@@ -29,7 +29,7 @@ class StudentRepository {
     if (excludeId) {
       filter._id = { $ne: excludeId };
     }
-    const student = await Student.findOne(filter);
+    const student = await Student.findOne(filter).lean();
     return !!student;
   }
 
@@ -48,7 +48,8 @@ class StudentRepository {
   async findById(id, session = null) {
     const query = Student.findOne({ _id: id, deletedAt: null })
       .populate('createdBy', 'name email')
-      .populate('feePlan');
+      .populate('feePlan')
+      .lean();
     if (session) query.session(session);
     return await query;
   }
@@ -68,7 +69,8 @@ class StudentRepository {
       .skip(skip)
       .limit(limit)
       .populate('createdBy', 'name email')
-      .populate('feePlan');
+      .populate('feePlan')
+      .lean();
 
     const total = await Student.countDocuments(filter);
     return { students, total };
@@ -110,16 +112,19 @@ class StudentRepository {
    */
   async getDashboardSummary() {
     const filter = { deletedAt: null };
-    const total = await Student.countDocuments(filter);
-    const active = await Student.countDocuments({ ...filter, status: 'ACTIVE' });
-    const inactive = await Student.countDocuments({ ...filter, status: 'INACTIVE' });
-    const fullPayment = await Student.countDocuments({ ...filter, paymentPlan: 'FULL_PAYMENT' });
-    const installment = await Student.countDocuments({ ...filter, paymentPlan: 'INSTALLMENT' });
-
-    const recentlyAdded = await Student.find(filter)
-      .sort({ createdAt: -1 })
-      .limit(5)
-      .populate('createdBy', 'name email');
+    
+    const [total, active, inactive, fullPayment, installment, recentlyAdded] = await Promise.all([
+      Student.countDocuments(filter),
+      Student.countDocuments({ ...filter, status: 'ACTIVE' }),
+      Student.countDocuments({ ...filter, status: 'INACTIVE' }),
+      Student.countDocuments({ ...filter, paymentPlan: 'FULL_PAYMENT' }),
+      Student.countDocuments({ ...filter, paymentPlan: 'INSTALLMENT' }),
+      Student.find(filter)
+        .sort({ createdAt: -1 })
+        .limit(5)
+        .populate('createdBy', 'name email')
+        .lean()
+    ]);
 
     return {
       totalStudents: total,
@@ -151,7 +156,7 @@ class StudentRepository {
    * List minimal student details for selection lists.
    */
   async listAllActiveMinimal() {
-    return await Student.find({ deletedAt: null }).select('_id fullName studentId course');
+    return await Student.find({ deletedAt: null }).select('_id fullName studentId course').lean();
   }
 
   /**
@@ -162,7 +167,8 @@ class StudentRepository {
     return await Student.find({ deletedAt: null })
       .sort({ createdAt: -1 })
       .limit(limit)
-      .populate('feePlan');
+      .populate('feePlan')
+      .lean();
   }
 }
 

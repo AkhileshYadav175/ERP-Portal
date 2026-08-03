@@ -164,13 +164,13 @@ StudentSchema.virtual('invoices', {
 // Pre-save middleware to auto-generate a unique studentId if not provided (collision-free auto-increment counter)
 StudentSchema.pre('save', async function () {
   if (!this.studentId) {
-    const Settings = require('./Settings');
+    const Counter = require('./Counter');
     let isUnique = false;
     let generatedId = '';
     
     // Check uniqueness iteratively to prevent any duplicate key errors on studentId
     while (!isUnique) {
-      const counter = await Settings.findOneAndUpdate(
+      const counter = await Counter.findOneAndUpdate(
         { key: 'student_counter' },
         { $inc: { value: 1 } },
         { new: true, upsert: true }

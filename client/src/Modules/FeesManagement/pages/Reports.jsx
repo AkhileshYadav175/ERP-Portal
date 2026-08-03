@@ -328,9 +328,9 @@ const Reports = () => {
       {/* Printable page header */}
       <div className="hidden print:flex justify-between items-start pb-4 border-b border-slate-200 mb-6">
         <div>
-          <h2 className="text-base font-extrabold text-slate-900">{settings?.institute?.name || 'JCMS ERP Academy'}</h2>
-          <p className="text-[9px] text-slate-400">
-            {settings?.institute?.address || '12, Corporate Block, Educational Hub'}, {settings?.institute?.city || 'New Delhi'}, {settings?.institute?.state || 'Delhi'} - {settings?.institute?.pincode || '110001'}
+          <h2 className="text-base font-extrabold text-slate-900">{settings?.institute?.name || 'Jains Computer'}</h2>
+          <p className="text-[9px] text-slate-450">
+            {settings?.institute?.address || '13, Shivpuri Colony, Main Kalwar Road, Jhotwara'}, {settings?.institute?.city || 'Jaipur'}, {settings?.institute?.state || 'Rajasthan'} - {settings?.institute?.pincode || '302012'}
           </p>
         </div>
         <div className="text-right">

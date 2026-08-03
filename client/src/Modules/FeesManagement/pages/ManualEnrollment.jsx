@@ -57,9 +57,7 @@ const ManualEnrollment = ({ onNavigate }) => {
   // Live calculations
   const billingSummary = useMemo(() => {
     const subtotal = Math.max(0, formData.totalFee - formData.discount);
-    const taxRate = 0.18; // 18% GST standard
-    const taxAmount = Math.round(subtotal * taxRate);
-    const totalPayable = subtotal + taxAmount;
+    const totalPayable = subtotal;
     
     // Installments generator
     const installments = [];
@@ -91,7 +89,7 @@ const ManualEnrollment = ({ onNavigate }) => {
 
     return {
       subtotal,
-      taxAmount,
+      taxAmount: 0,
       totalPayable,
       installments
     };
@@ -136,7 +134,8 @@ const ManualEnrollment = ({ onNavigate }) => {
         course: formData.course,
         studentId: formData.rollNo.trim() || undefined,
         address: 'N/A',
-        paymentPlan: formData.paymentType === 'One-Time' ? 'FULL_PAYMENT' : 'INSTALLMENT'
+        paymentPlan: formData.paymentType === 'One-Time' ? 'FULL_PAYMENT' : 'INSTALLMENT',
+        totalFees: billingSummary.totalPayable
       };
 
       const studentRes = await registerStudent(studentPayload);
@@ -148,6 +147,8 @@ const ManualEnrollment = ({ onNavigate }) => {
           studentId: student._id,
           totalFees: billingSummary.totalPayable,
           paymentPlan: formData.paymentType === 'One-Time' ? 'FULL_PAYMENT' : 'INSTALLMENT',
+          numberOfInstallments: formData.paymentType === 'One-Time' ? undefined : Number(formData.installmentCount),
+          firstDueDate: formData.paymentType === 'One-Time' ? undefined : (billingSummary.installments[0]?.dueDate || formData.admissionDate),
           installments: billingSummary.installments.map((inst, index) => ({
             installmentNo: index + 1,
             amount: inst.amount,
@@ -179,6 +180,14 @@ const ManualEnrollment = ({ onNavigate }) => {
       currency: 'INR',
       maximumFractionDigits: 0
     }).format(amount || 0);
+  };
+
+  // Format date
+  const formatDate = (dateStr) => {
+    if (!dateStr) return 'N/A';
+    const d = new Date(dateStr);
+    if (isNaN(d.getTime())) return 'N/A';
+    return d.toLocaleDateString('en-US', { day: '2-digit', month: 'short', year: 'numeric' });
   };
 
   if (formSuccess) {
@@ -424,14 +433,6 @@ const ManualEnrollment = ({ onNavigate }) => {
               <div className="flex justify-between py-1 border-b border-[#FAF9F6]">
                 <span className="text-slate-400">Discount Allocation</span>
                 <span className="text-rose-500">- {formatINR(formData.discount)}</span>
-              </div>
-              <div className="flex justify-between py-1 border-b border-[#FAF9F6]">
-                <span className="text-slate-400">Taxable Subtotal</span>
-                <span className="text-slate-750">{formatINR(billingSummary.subtotal)}</span>
-              </div>
-              <div className="flex justify-between py-1 border-b border-[#FAF9F6]">
-                <span className="text-slate-400">GST (18% standard)</span>
-                <span className="text-slate-750">{formatINR(billingSummary.taxAmount)}</span>
               </div>
               <div className="flex justify-between py-1.5 border-b border-[#FAF9F6] text-slate-800">
                 <span className="text-slate-450 font-extrabold">Net Total Payable</span>

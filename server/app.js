@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const path = require('path');
 const dotenv = require('dotenv');
+const compression = require('compression');
 const loggerMiddleware = require('./middleware/loggerMiddleware');
 const errorMiddleware = require('./middleware/errorMiddleware');
 
@@ -11,6 +12,7 @@ dotenv.config();
 const app = express();
 
 // Middlewares
+app.use(compression());
 app.use(cors({
   origin: process.env.CLIENT_ORIGIN || '*', 
   credentials: true

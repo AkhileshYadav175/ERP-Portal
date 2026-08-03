@@ -22,8 +22,10 @@ exports.registerEmployee = async (req, res, next) => {
       return res.status(400).json({ success: false, message: 'Please provide all required fields.' });
     }
 
+    const cleanEmail = email.trim().toLowerCase();
+
     // Check if employee email exists
-    const employeeExists = await Employee.findOne({ email });
+    const employeeExists = await Employee.findOne({ email: cleanEmail });
     if (employeeExists) {
       return res.status(400).json({ success: false, message: 'An employee with this email already exists.' });
     }
@@ -32,14 +34,14 @@ exports.registerEmployee = async (req, res, next) => {
     const employee = await Employee.create({
       name,
       lastName,
-      email,
+      email: cleanEmail,
       phone,
       department: department || null,
       password,
       profilePicture: profilePicture || '',
       status: 'pending' // default status is pending approval
     });
-
+    
     // Create admin notification
     await Notification.create({
       isAdmin: true,
@@ -75,8 +77,10 @@ exports.loginEmployee = async (req, res, next) => {
       return res.status(400).json({ success: false, message: 'Please provide email and password.' });
     }
 
+    const cleanEmail = email.trim().toLowerCase();
+
     // Find employee and select password field
-    const employee = await Employee.findOne({ email }).select('+password');
+    const employee = await Employee.findOne({ email: cleanEmail }).select('+password');
     if (!employee) {
       return res.status(401).json({ success: false, message: 'Invalid credentials' });
     }
@@ -154,12 +158,15 @@ exports.updateEmployeeProfile = async (req, res, next) => {
       return res.status(404).json({ success: false, message: 'Employee not found.' });
     }
 
-    if (email && email !== employee.email) {
-      const emailExists = await Employee.findOne({ email });
-      if (emailExists) {
-        return res.status(400).json({ success: false, message: 'An employee with this email already exists.' });
+    if (email) {
+      const cleanEmail = email.trim().toLowerCase();
+      if (cleanEmail !== employee.email) {
+        const emailExists = await Employee.findOne({ email: cleanEmail });
+        if (emailExists) {
+          return res.status(400).json({ success: false, message: 'An employee with this email already exists.' });
+        }
+        employee.email = cleanEmail;
       }
-      employee.email = email;
     }
 
     if (name) employee.name = name;

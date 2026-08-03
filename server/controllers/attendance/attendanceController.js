@@ -204,13 +204,26 @@ exports.getAttendanceStats = async (req, res, next) => {
 
     const totalDBLogsCount = await Attendance.countDocuments();
 
+    // Calculate overall 10 days range boundary in IST
+    const tenDaysAgo = new Date();
+    tenDaysAgo.setDate(today.getDate() - 9);
+    const { start: startDate } = getIstTodayBoundaries(tenDaysAgo);
+    const { end: endDate } = getIstTodayBoundaries(today);
+
+    // Fetch all logs in one query
+    const allLogs = await Attendance.find({
+      date: { $gte: startDate, $lte: endDate }
+    });
+
     for (let i = 9; i >= 0; i--) {
       const targetDate = new Date();
       targetDate.setDate(today.getDate() - i);
       const { start: startOfDay, end: endOfDay } = getIstTodayBoundaries(targetDate);
 
-      const logs = await Attendance.find({
-        date: { $gte: startOfDay, $lte: endOfDay }
+      // Filter logs in memory for the current day iteration
+      const logs = allLogs.filter(log => {
+        const logTime = new Date(log.date).getTime();
+        return logTime >= startOfDay.getTime() && logTime <= endOfDay.getTime();
       });
 
       const onTimeCount = logs.filter(log => log.status === 'Present').length;

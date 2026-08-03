@@ -72,6 +72,14 @@ class PaymentService {
         feePlan.status = 'PAID';
         await feePlan.save({ session });
 
+        // Update corresponding invoice to PAID
+        const invoiceRepository = require('../repositories/invoiceRepository');
+        const invoice = await invoiceRepository.findOne({ studentId, installmentId: null }, session);
+        if (invoice) {
+          invoice.status = 'PAID';
+          await invoice.save({ session });
+        }
+
         logAction = 'FULL_PAYMENT';
         logDesc = `Full payment of ₹${paymentAmount} received. Fee Plan status marked as PAID.`;
 
@@ -97,6 +105,14 @@ class PaymentService {
         installment.status = 'PAID';
         installment.paidDate = paymentDate ? new Date(paymentDate) : new Date();
         await installment.save({ session });
+
+        // Update corresponding invoice to PAID
+        const invoiceRepository = require('../repositories/invoiceRepository');
+        const invoice = await invoiceRepository.findOne({ studentId, installmentId }, session);
+        if (invoice) {
+          invoice.status = 'PAID';
+          await invoice.save({ session });
+        }
 
         // Update parent Fee Plan
         feePlan.paidAmount += paymentAmount;
@@ -173,6 +189,14 @@ class PaymentService {
           inst.status = inst.remainingAmount === 0 ? 'PAID' : 'PARTIAL';
           if (inst.status === 'PAID') {
             inst.paidDate = paymentDate ? new Date(paymentDate) : new Date();
+
+            // Update corresponding invoice to PAID
+            const invoiceRepository = require('../repositories/invoiceRepository');
+            const invoice = await invoiceRepository.findOne({ studentId, installmentId: inst._id }, session);
+            if (invoice) {
+              invoice.status = 'PAID';
+              await invoice.save({ session });
+            }
           }
 
           await inst.save({ session });
