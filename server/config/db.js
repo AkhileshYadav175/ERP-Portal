@@ -147,7 +147,7 @@ const connectDB = async () => {
     }
   } catch (error) {
     console.error(`Database Connection Error: ${error.message}`);
-    console.log('Server is running, but database connection is pending. Make sure MongoDB is started.');
+    throw error;
   }
 };
 

@@ -36,7 +36,10 @@ export const AuthProvider = ({ children }) => {
       return { success: true };
     } catch (error) {
       console.error('Login error:', error);
-      const message = error.response?.data?.message || 'Login failed. Please check your credentials.';
+      const isNetworkError = !error.response;
+      const message = isNetworkError
+        ? 'Cannot reach the server. Please check your internet connection and try again.'
+        : (error.response?.data?.message || 'Invalid email or password.');
       return { success: false, error: message };
     }
   }, []);
