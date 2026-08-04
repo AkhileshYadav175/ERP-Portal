@@ -231,28 +231,62 @@ const Receipts = () => {
             {/* Dynamic CSS styles injected specifically for clean printing */}
             <style>{`
               @media print {
-                /* Hide everything on the page */
-                body {
-                  visibility: hidden !important;
+                /* Hide everything else on the page */
+                aside, nav, footer, header, .print\:hidden, button {
+                  display: none !important;
                 }
-                /* Show only the printable receipt div and its contents */
-                #printable-receipt, #printable-receipt * {
-                  visibility: visible !important;
+                
+                /* Reset body and html layout for print */
+                html, body, #root, #root > div, main {
+                  background: white !important;
+                  color: black !important;
+                  margin: 0 !important;
+                  padding: 0 !important;
+                  width: 100% !important;
+                  height: auto !important;
+                  min-height: 0 !important;
+                  overflow: visible !important;
+                  display: block !important;
+                  position: static !important;
                 }
+
+                /* Override modal container styling to render inline on print page */
+                .fixed.inset-0 {
+                  position: static !important;
+                  display: block !important;
+                  background: transparent !important;
+                  padding: 0 !important;
+                  margin: 0 !important;
+                  backdrop-filter: none !important;
+                  overflow: visible !important;
+                }
+
+                /* Override modal card wrapper styling */
+                .relative.max-w-2xl {
+                  max-width: 100% !important;
+                  width: 100% !important;
+                  height: auto !important;
+                  max-height: none !important;
+                  border: none !important;
+                  box-shadow: none !important;
+                  overflow: visible !important;
+                  display: block !important;
+                  position: static !important;
+                }
+
+                /* Ensure printable element expands naturally */
                 #printable-receipt {
-                  position: absolute !important;
-                  left: 0 !important;
-                  top: 0 !important;
+                  display: block !important;
                   width: 100% !important;
                   height: auto !important;
                   overflow: visible !important;
                   padding: 0 !important;
                   margin: 0 !important;
                 }
-                /* Hide browser-default header (title, URL) and footer (page number, date) */
+
                 @page {
                   size: auto;
-                  margin: 10mm 15mm;
+                  margin: 15mm 20mm;
                 }
               }
             `}</style>
